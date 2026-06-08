@@ -1,4 +1,5 @@
 'use client';
+import Image from 'next/image';
 import { useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
@@ -27,59 +28,91 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-white">
-      <div className="w-full max-w-sm p-8 border border-gray-100 rounded-2xl shadow-sm">
-        
-        <div className="flex items-center gap-2 mb-6">
-          <div className="w-2 h-2 rounded-full bg-black"></div>
-          <span className="font-medium text-sm">ContentLens</span>
+    <div style={{ minHeight: '100vh', backgroundColor: '#F8FAFF', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
+
+      {/* Card */}
+      <div style={{ width: '100%', maxWidth: '400px', backgroundColor: '#fff', borderRadius: '16px', padding: '36px', border: '1px solid #e8ecf0', boxShadow: '0 4px 24px #0A254010' }}>
+
+        {/* Logo */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '28px' }}>
+         <Image src="/logo.png" alt="ContentLens" width={28} height={28} />
+          <span style={{ fontWeight: 500, fontSize: '15px', color: '#0A2540' }}>ContentLens</span>
         </div>
 
-        <h1 className="text-2xl font-medium mb-1">
-          {isSignup ? 'Account banao' : 'Login karo'}
+        {/* Heading */}
+        <h1 style={{ fontSize: '24px', fontWeight: 500, color: '#0A2540', marginBottom: '6px', letterSpacing: '-0.5px' }}>
+          {isSignup ? 'Create your account' : 'Welcome back'}
         </h1>
-        <p className="text-sm text-gray-400 mb-6">
-          {isSignup ? 'Free mein shuru karo' : 'Wapas aao!'}
+        <p style={{ fontSize: '14px', color: '#94a3b8', marginBottom: '28px' }}>
+          {isSignup ? 'Start researching for free' : 'Login to your ContentLens account'}
         </p>
 
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={e => setEmail(e.target.value)}
-          className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm mb-3 focus:outline-none focus:border-gray-400"
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={e => setPassword(e.target.value)}
-          className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm mb-4 focus:outline-none focus:border-gray-400"
-        />
+        {/* Email */}
+        <div style={{ marginBottom: '12px' }}>
+          <label style={{ fontSize: '12px', fontWeight: 500, color: '#0A2540', display: 'block', marginBottom: '6px' }}>Email</label>
+          <input
+            type="email"
+            placeholder="you@example.com"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            style={{ width: '100%', border: '1px solid #e8ecf0', borderRadius: '8px', padding: '11px 14px', fontSize: '14px', color: '#0A2540', outline: 'none', background: '#fafbfc', boxSizing: 'border-box' }}
+          />
+        </div>
 
+        {/* Password */}
+        <div style={{ marginBottom: '20px' }}>
+          <label style={{ fontSize: '12px', fontWeight: 500, color: '#0A2540', display: 'block', marginBottom: '6px' }}>Password</label>
+          <input
+            type="password"
+            placeholder="Min 6 characters"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && handleAuth()}
+            style={{ width: '100%', border: '1px solid #e8ecf0', borderRadius: '8px', padding: '11px 14px', fontSize: '14px', color: '#0A2540', outline: 'none', background: '#fafbfc', boxSizing: 'border-box' }}
+          />
+        </div>
+
+        {/* Error */}
         {error && (
-          <p className="text-red-500 text-xs mb-3">{error}</p>
+          <div style={{ background: '#FFF0F0', color: '#cc0000', fontSize: '13px', padding: '10px 14px', borderRadius: '8px', marginBottom: '16px', border: '1px solid #fcc' }}>
+            {error}
+          </div>
         )}
 
+        {/* Button */}
         <button
           onClick={handleAuth}
           disabled={loading}
-          className="w-full bg-black text-white py-3 rounded-lg text-sm font-medium disabled:opacity-50"
+          style={{ width: '100%', background: '#1B4FDB', color: '#fff', border: 'none', padding: '13px', borderRadius: '8px', fontSize: '14px', fontWeight: 500, cursor: 'pointer', opacity: loading ? 0.7 : 1, marginBottom: '16px' }}
         >
-          {loading ? 'Wait karo...' : (isSignup ? 'Sign Up' : 'Login')}
+          {loading ? 'Please wait...' : (isSignup ? 'Create account' : 'Login')}
         </button>
 
-        <p className="text-center text-sm text-gray-400 mt-4">
-          {isSignup ? 'Already account hai? ' : 'Naya account? '}
+        {/* Divider */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+          <div style={{ flex: 1, height: '1px', background: '#e8ecf0' }}></div>
+          <span style={{ fontSize: '12px', color: '#94a3b8' }}>or</span>
+          <div style={{ flex: 1, height: '1px', background: '#e8ecf0' }}></div>
+        </div>
+
+        {/* Switch */}
+        <p style={{ textAlign: 'center', fontSize: '13px', color: '#94a3b8' }}>
+          {isSignup ? 'Already have an account? ' : "Don't have an account? "}
           <button
-            onClick={() => setIsSignup(!isSignup)}
-            className="text-black underline"
+            onClick={() => { setIsSignup(!isSignup); setError(''); }}
+            style={{ color: '#1B4FDB', background: 'none', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: 500 }}
           >
-            {isSignup ? 'Login karo' : 'Sign up karo'}
+            {isSignup ? 'Login' : 'Sign up for free'}
           </button>
         </p>
 
       </div>
+
+      {/* Bottom note */}
+      <p style={{ position: 'fixed', bottom: '20px', fontSize: '12px', color: '#94a3b8' }}>
+        ContentLens · Made for Indian Creators
+      </p>
+
     </div>
   );
 }

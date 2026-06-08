@@ -1,155 +1,168 @@
+'use client';
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+
 export default function Home() {
+  const router = useRouter();
+
   return (
-    <main className="min-h-screen" style={{ backgroundColor: '#C1EBE9' }}>
-      
+    <main style={{ backgroundColor: '#ffffff', minHeight: '100vh', fontFamily: 'sans-serif' }}>
+
       {/* Navbar */}
-      <nav style={{ backgroundColor: '#C1EBE9', borderBottom: '1px solid #a8d8d6' }}
-        className="fixed top-0 left-0 right-0 flex items-center justify-between px-8 py-4">
-        <div className="flex items-center gap-2">
-          <div className="w-2 h-2 rounded-full" style={{ backgroundColor: '#4F252E' }}></div>
-          <span className="font-medium text-sm" style={{ color: '#4F252E' }}>ContentLens</span>
+      <nav style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 32px', backgroundColor: '#fff', borderBottom: '1px solid #e8ecf0', position: 'sticky', top: 0, zIndex: 10 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <Image src="/logo.png" alt="ContentLens" width={28} height={28} />
+          <span style={{ fontWeight: 500, fontSize: '15px', color: '#0A2540', letterSpacing: '-0.3px' }}>ContentLens</span>
         </div>
-        <div className="flex gap-3">
-          <button style={{ color: '#4F252E', border: '1px solid #4F252E' }}
-            className="text-sm px-4 py-2 rounded-lg">
+        <div style={{ display: 'flex', gap: '24px', fontSize: '13px', color: '#4a6080' }}>
+          <span style={{ cursor: 'pointer' }}>Features</span>
+          <span style={{ cursor: 'pointer' }}>Pricing</span>
+          <span style={{ cursor: 'pointer' }}>Blog</span>
+        </div>
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <button
+            onClick={() => router.push('/login')}
+            style={{ background: 'transparent', border: '1px solid #cbd5e1', color: '#0A2540', padding: '7px 16px', borderRadius: '8px', fontSize: '13px', cursor: 'pointer' }}>
             Login
           </button>
-          <button style={{ backgroundColor: '#F4AE52', color: '#4F252E', border: 'none' }}
-            className="text-sm px-4 py-2 rounded-lg font-medium">
+          <button
+            onClick={() => router.push('/login')}
+            style={{ background: '#1B4FDB', color: '#fff', border: 'none', padding: '7px 16px', borderRadius: '8px', fontSize: '13px', fontWeight: 500, cursor: 'pointer' }}>
             Get started
           </button>
         </div>
       </nav>
 
       {/* Hero */}
-      <div className="text-center max-w-2xl mx-auto px-6 pt-36 pb-16">
-        <div className="inline-flex items-center gap-2 text-xs px-4 py-1.5 rounded-full mb-8"
-          style={{ backgroundColor: '#FFF7C5', color: '#4F252E', border: '1px solid #F4AE52' }}>
-          <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: '#F4AE52' }}></div>
-          India ka #1 Creator Research Tool
+      <div style={{ textAlign: 'center', padding: '64px 24px 48px', maxWidth: '660px', margin: '0 auto' }}>
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#EEF2FF', color: '#1B4FDB', fontSize: '11px', padding: '5px 14px', borderRadius: '20px', marginBottom: '24px', letterSpacing: '0.05em', border: '1px solid #c7d4f8' }}>
+          <div style={{ width: '5px', height: '5px', borderRadius: '50%', backgroundColor: '#1B4FDB' }}></div>
+          India's #1 Creator Research Tool
         </div>
-
-        <h1 className="text-5xl font-medium leading-tight tracking-tight mb-5"
-          style={{ color: '#4F252E' }}>
-          Create content that <br />
-          <em className="font-normal italic" style={{ color: '#F4AE52' }}>actually</em> works.
+        <h1 style={{ fontSize: '48px', fontWeight: 500, lineHeight: 1.1, letterSpacing: '-2px', color: '#0A2540', marginBottom: '16px' }}>
+          Create content that<br />
+          <em style={{ fontStyle: 'italic', fontWeight: 400, color: '#1B4FDB' }}>actually</em> works.
         </h1>
-
-        <p className="text-base leading-relaxed mb-8 max-w-md mx-auto"
-          style={{ color: '#4F252E', opacity: 0.7 }}>
-          Video banane se pehle janlo — kitne views milenge,
-          competition kaisi hai, aur konsa topic trend karne wala hai.
+        <p style={{ fontSize: '15px', color: '#4a6080', lineHeight: 1.75, maxWidth: '420px', margin: '0 auto 28px' }}>
+          Know your views, competition, and trending topics before you hit record.
         </p>
-
-        <div className="flex items-center justify-center gap-3 mb-4">
-          <button style={{ backgroundColor: '#4F252E', color: '#FFF7C5' }}
-            className="px-7 py-3 rounded-lg text-sm font-medium">
-            Free mein shuru karo
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginBottom: '12px' }}>
+          <button
+            onClick={() => router.push('/login')}
+            style={{ background: '#1B4FDB', color: '#fff', border: 'none', padding: '13px 30px', borderRadius: '8px', fontSize: '14px', fontWeight: 500, cursor: 'pointer' }}>
+            Start for free
           </button>
-          <button style={{ backgroundColor: '#FFF7C5', color: '#4F252E', border: '1px solid #F4AE52' }}
-            className="px-7 py-3 rounded-lg text-sm">
-            Demo dekho
+          <button
+            style={{ background: 'transparent', border: '1px solid #cbd5e1', color: '#4a6080', padding: '13px 30px', borderRadius: '8px', fontSize: '14px', cursor: 'pointer' }}>
+            Watch demo
           </button>
         </div>
-        <p className="text-xs" style={{ color: '#4F252E', opacity: 0.5 }}>
-          Credit card nahi chahiye · 3 searches free
-        </p>
+        <p style={{ fontSize: '12px', color: '#94a3b8' }}>No credit card required · 3 free searches</p>
       </div>
 
       {/* Stats */}
-      <div className="flex justify-center mx-6 mb-16">
-        <div className="flex rounded-2xl overflow-hidden" style={{ border: '1px solid #a8d8d6' }}>
-          {[
-            { num: '12,000+', label: 'Active creators' },
-            { num: '3 lakh+', label: 'Topics analyzed' },
-            { num: '4.9 / 5', label: 'User rating' },
-            { num: 'Hindi + EN', label: 'Both supported' },
-          ].map((stat, i) => (
-            <div key={i} className="px-10 py-6 text-center"
-              style={{ backgroundColor: '#FFF7C5', borderRight: i < 3 ? '1px solid #a8d8d6' : 'none' }}>
-              <div className="text-2xl font-medium" style={{ color: '#4F252E' }}>{stat.num}</div>
-              <div className="text-xs mt-1" style={{ color: '#4F252E', opacity: 0.6 }}>{stat.label}</div>
-            </div>
-          ))}
+      <div style={{ display: 'flex', justifyContent: 'center', borderTop: '1px solid #e8ecf0', borderBottom: '1px solid #e8ecf0', margin: '0 32px' }}>
+        {[
+          { num: '12,000+', label: 'Active creators' },
+          { num: '3 lakh+', label: 'Topics analyzed' },
+          { num: '4.9 / 5', label: 'User rating' },
+          { num: 'Hindi + EN', label: 'Both supported' },
+        ].map((s, i) => (
+          <div key={i} style={{ padding: '20px 36px', textAlign: 'center', borderRight: i < 3 ? '1px solid #e8ecf0' : 'none' }}>
+            <div style={{ fontSize: '22px', fontWeight: 500, color: '#0A2540' }}>{s.num}</div>
+            <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '3px' }}>{s.label}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Demo */}
+      <div style={{ padding: '32px 24px', maxWidth: '600px', margin: '0 auto' }}>
+        <p style={{ fontSize: '11px', letterSpacing: '0.07em', textTransform: 'uppercase', color: '#94a3b8', marginBottom: '10px' }}>Live preview</p>
+        <div style={{ border: '1px solid #e8ecf0', borderRadius: '14px', overflow: 'hidden' }}>
+          <div style={{ padding: '14px 16px', borderBottom: '1px solid #e8ecf0', display: 'flex', gap: '8px', background: '#fafbfc' }}>
+            <input readOnly value="home workout without equipment" style={{ flex: 1, border: '1px solid #e8ecf0', borderRadius: '8px', padding: '9px 12px', fontSize: '13px', background: '#fff', color: '#0A2540' }} />
+            <button style={{ background: '#1B4FDB', color: '#fff', border: 'none', padding: '9px 18px', borderRadius: '8px', fontSize: '13px', fontWeight: 500, cursor: 'pointer' }}>Analyze</button>
+          </div>
+          <div style={{ padding: '10px 16px', borderBottom: '1px solid #e8ecf0', display: 'flex', gap: '6px', background: '#fafbfc', flexWrap: 'wrap' }}>
+            {['Fitness', 'Finance', 'Gaming', 'Tech', 'Food'].map((c, i) => (
+              <span key={i} style={{ fontSize: '12px', padding: '4px 12px', borderRadius: '20px', border: '1px solid', borderColor: i === 0 ? '#1B4FDB' : '#e8ecf0', background: i === 0 ? '#1B4FDB' : '#fff', color: i === 0 ? '#fff' : '#4a6080', cursor: 'pointer' }}>{c}</span>
+            ))}
+          </div>
+          <div style={{ padding: '16px', display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '10px' }}>
+            {[
+              { l: 'Demand score', v: '87/100', s: 'High demand', c: '#0A2540' },
+              { l: 'Expected views', v: '50K–200K', s: 'First 30 days', c: '#0A2540' },
+              { l: 'Competition', v: 'Medium', s: 'Achievable', c: '#f59e0b' },
+            ].map((r, i) => (
+              <div key={i} style={{ background: '#F8FAFF', borderRadius: '10px', padding: '14px', border: '1px solid #e8ecf0' }}>
+                <p style={{ fontSize: '10px', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '6px' }}>{r.l}</p>
+                <p style={{ fontSize: '20px', fontWeight: 500, color: r.c }}>{r.v}</p>
+                <p style={{ fontSize: '11px', color: '#94a3b8', marginTop: '3px' }}>{r.s}</p>
+              </div>
+            ))}
+          </div>
+          <div style={{ margin: '0 16px 16px', background: '#F0F5FF', borderRadius: '10px', padding: '12px', border: '1px solid #c7d4f8' }}>
+            <p style={{ fontSize: '13px', color: '#0A2540', marginBottom: '4px' }}>💡 No strong Hindi video exists on this topic yet</p>
+            <p style={{ fontSize: '13px', color: '#0A2540' }}>💡 Low competition on "beginners" angle in India</p>
+          </div>
         </div>
       </div>
 
       {/* Features */}
-      <div className="max-w-5xl mx-auto px-6 pb-16">
-        <div className="text-center mb-10">
-          <p className="text-xs uppercase tracking-widest mb-2" style={{ color: '#F4AE52' }}>Features</p>
-          <h2 className="text-3xl font-medium" style={{ color: '#4F252E' }}>Sab kuch ek jagah</h2>
-        </div>
-        <div className="grid grid-cols-3 gap-4">
+      <div style={{ padding: '40px 24px', maxWidth: '600px', margin: '0 auto' }}>
+        <p style={{ fontSize: '11px', letterSpacing: '0.07em', textTransform: 'uppercase', color: '#94a3b8', marginBottom: '8px' }}>Features</p>
+        <h2 style={{ fontSize: '26px', fontWeight: 500, color: '#0A2540', marginBottom: '6px' }}>Everything in one place</h2>
+        <p style={{ fontSize: '14px', color: '#4a6080', marginBottom: '20px' }}>All the research a creator needs — before hitting record.</p>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '12px' }}>
           {[
-            { icon: '📊', title: 'View Prediction', desc: 'Upload se pehle AI batayega kitne views milenge.' },
-            { icon: '📈', title: 'Trend Radar', desc: 'Agle hafte jo viral hoga — tumhara alert pehle aayega.' },
-            { icon: '🔍', title: 'Content Gap Finder', desc: 'Jo log dhundh rahe hain lekin kisi ne video nahi banaya.' },
-            { icon: '⚔️', title: 'Competition Score', desc: 'Easy / Medium / Hard — ek second mein samjho.' },
-            { icon: '✍️', title: 'Title Suggestions', desc: 'CTR score ke saath 5 title ideas jo click karwaye.' },
-            { icon: '📅', title: 'Content Calendar', desc: '30 din ka pura content plan auto-generated.' },
+            { icon: '📊', title: 'View prediction', desc: 'AI tells you estimated views before you upload.' },
+            { icon: '📈', title: 'Trend radar', desc: 'Get early alerts on topics about to go viral.' },
+            { icon: '🔍', title: 'Content gaps', desc: 'Discover topics nobody has covered yet.' },
+            { icon: '⚔️', title: 'Competition score', desc: 'Easy / Medium / Hard in one second.' },
+            { icon: '✍️', title: 'Title ideas', desc: 'High CTR titles tailored to your niche.' },
+            { icon: '📅', title: 'Content calendar', desc: 'Auto-generate a 30-day content plan.' },
           ].map((f, i) => (
-            <div key={i} className="p-5 rounded-2xl"
-              style={{ backgroundColor: '#FFF7C5', border: '1px solid #F4AE52' }}>
-              <div className="text-2xl mb-3">{f.icon}</div>
-              <div className="font-medium mb-1 text-sm" style={{ color: '#4F252E' }}>{f.title}</div>
-              <div className="text-xs leading-relaxed" style={{ color: '#4F252E', opacity: 0.7 }}>{f.desc}</div>
+            <div key={i} style={{ background: '#fff', padding: '18px', borderRadius: '12px', border: '1px solid #e8ecf0' }}>
+              <div style={{ width: '32px', height: '32px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#EEF2FF', marginBottom: '10px', fontSize: '16px' }}>{f.icon}</div>
+              <p style={{ fontSize: '13px', fontWeight: 500, color: '#0A2540', marginBottom: '4px' }}>{f.title}</p>
+              <p style={{ fontSize: '12px', color: '#94a3b8', lineHeight: 1.6 }}>{f.desc}</p>
             </div>
           ))}
         </div>
       </div>
 
       {/* Pricing */}
-      <div className="max-w-5xl mx-auto px-6 pb-20">
-        <div className="text-center mb-10">
-          <p className="text-xs uppercase tracking-widest mb-2" style={{ color: '#F4AE52' }}>Pricing</p>
-          <h2 className="text-3xl font-medium" style={{ color: '#4F252E' }}>Simple pricing</h2>
-        </div>
-        <div className="grid grid-cols-3 gap-4">
+      <div style={{ padding: '0 24px 48px', maxWidth: '600px', margin: '0 auto' }}>
+        <p style={{ fontSize: '11px', letterSpacing: '0.07em', textTransform: 'uppercase', color: '#94a3b8', marginBottom: '8px' }}>Pricing</p>
+        <h2 style={{ fontSize: '26px', fontWeight: 500, color: '#0A2540', marginBottom: '20px' }}>Simple, honest pricing</h2>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '12px' }}>
           {[
-            { name: 'Free', price: '₹0', desc: 'Shuru karne ke liye', features: ['3 searches/month', 'Basic demand score', 'View estimate'], popular: false },
-            { name: 'Creator', price: '₹699', desc: 'Growing creators ke liye', features: ['Unlimited searches', 'Full AI analysis', 'Trend alerts', 'Content calendar', 'Hindi + English'], popular: true },
-            { name: 'Pro', price: '₹1,499', desc: 'Agencies & serious creators', features: ['Sab Creator features', 'Competitor tracking', 'Multiple channels', 'Priority support'], popular: false },
-          ].map((plan, i) => (
-            <div key={i} className="p-6 rounded-2xl relative"
-              style={{
-                backgroundColor: plan.popular ? '#4F252E' : '#FFF7C5',
-                border: plan.popular ? '2px solid #F4AE52' : '1px solid #F4AE52'
-              }}>
-              {plan.popular && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 text-xs px-3 py-1 rounded-full font-medium"
-                  style={{ backgroundColor: '#F4AE52', color: '#4F252E' }}>
+            { name: 'Free', price: '₹0', desc: 'To get started', features: ['3 searches/month', 'Basic demand score', 'View estimate'], popular: false },
+            { name: 'Creator', price: '₹699', desc: 'For growing creators', features: ['Unlimited searches', 'Full AI analysis', 'Trend alerts', 'Content calendar', 'Hindi + English'], popular: true },
+            { name: 'Pro', price: '₹1,499', desc: 'For agencies & pros', features: ['All Creator features', 'Competitor tracking', 'Multiple channels', 'Priority support'], popular: false },
+          ].map((p, i) => (
+            <div key={i} style={{ background: p.popular ? '#F8FAFF' : '#fff', border: p.popular ? '2px solid #1B4FDB' : '1px solid #e8ecf0', borderRadius: '14px', padding: '20px', position: 'relative' }}>
+              {p.popular && (
+                <div style={{ position: 'absolute', top: '-12px', left: '50%', transform: 'translateX(-50%)', background: '#1B4FDB', color: '#fff', fontSize: '11px', padding: '3px 14px', borderRadius: '20px', whiteSpace: 'nowrap', fontWeight: 500 }}>
                   Most popular
                 </div>
               )}
-              <div className="text-xs uppercase tracking-widest mb-3"
-                style={{ color: plan.popular ? '#F4AE52' : '#4F252E', opacity: plan.popular ? 1 : 0.6 }}>
-                {plan.name}
-              </div>
-              <div className="text-3xl font-medium mb-1"
-                style={{ color: plan.popular ? '#FFF7C5' : '#4F252E' }}>
-                {plan.price}
-                <span className="text-sm font-normal opacity-60"> /month</span>
-              </div>
-              <div className="text-xs mb-4 pb-4"
-                style={{ color: plan.popular ? '#FFF7C5' : '#4F252E', opacity: 0.7, borderBottom: `1px solid ${plan.popular ? '#ffffff30' : '#F4AE5260'}` }}>
-                {plan.desc}
-              </div>
-              <ul className="space-y-2 mb-5">
-                {plan.features.map((f, j) => (
-                  <li key={j} className="text-xs flex items-center gap-2"
-                    style={{ color: plan.popular ? '#FFF7C5' : '#4F252E' }}>
-                    <span style={{ color: '#F4AE52' }}>✓</span> {f}
+              <p style={{ fontSize: '11px', letterSpacing: '0.06em', textTransform: 'uppercase', color: '#94a3b8', marginBottom: '10px' }}>{p.name}</p>
+              <p style={{ fontSize: '28px', fontWeight: 500, color: '#0A2540', letterSpacing: '-1px', marginBottom: '4px' }}>
+                {p.price} <span style={{ fontSize: '13px', fontWeight: 400, color: '#94a3b8' }}>/month</span>
+              </p>
+              <p style={{ fontSize: '12px', color: '#4a6080', marginBottom: '14px', paddingBottom: '14px', borderBottom: '1px solid #e8ecf0' }}>{p.desc}</p>
+              <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '7px', marginBottom: '16px' }}>
+                {p.features.map((f, j) => (
+                  <li key={j} style={{ fontSize: '12px', color: '#4a6080', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <span style={{ color: '#1B4FDB' }}>✓</span> {f}
                   </li>
                 ))}
               </ul>
-              <button className="w-full py-2.5 rounded-lg text-sm font-medium"
-                style={{
-                  backgroundColor: plan.popular ? '#F4AE52' : '#4F252E',
-                  color: plan.popular ? '#4F252E' : '#FFF7C5',
-                  border: 'none'
-                }}>
-                {plan.name === 'Free' ? 'Free mein try karo' : 'Abhi lelo'}
+              <button
+                onClick={() => router.push('/login')}
+                style={{ width: '100%', padding: '10px', borderRadius: '8px', fontSize: '13px', fontWeight: 500, cursor: 'pointer', background: p.popular ? '#1B4FDB' : 'transparent', color: p.popular ? '#fff' : '#0A2540', border: p.popular ? 'none' : '1px solid #cbd5e1' }}>
+                {p.name === 'Free' ? 'Try for free' : 'Get started'}
               </button>
             </div>
           ))}
@@ -157,16 +170,13 @@ export default function Home() {
       </div>
 
       {/* Footer */}
-      <footer className="px-8 py-6 flex justify-between items-center"
-        style={{ borderTop: '1px solid #a8d8d6', backgroundColor: '#C1EBE9' }}>
-        <div className="flex items-center gap-2">
-          <div className="w-2 h-2 rounded-full" style={{ backgroundColor: '#4F252E' }}></div>
-          <span className="text-sm font-medium" style={{ color: '#4F252E' }}>ContentLens</span>
+      <footer style={{ padding: '20px 32px', borderTop: '1px solid #e8ecf0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
+          <div style={{ width: '7px', height: '7px', borderRadius: '50%', backgroundColor: '#1B4FDB' }}></div>
+          <span style={{ fontSize: '14px', fontWeight: 500, color: '#0A2540' }}>ContentLens</span>
         </div>
-        <div className="flex gap-5 text-xs" style={{ color: '#4F252E', opacity: 0.6 }}>
-          <span>Privacy</span>
-          <span>Terms</span>
-          <span>Contact</span>
+        <div style={{ display: 'flex', gap: '20px', fontSize: '12px', color: '#94a3b8' }}>
+          <span>Privacy</span><span>Terms</span><span>Contact</span><span>Twitter</span>
         </div>
       </footer>
 
