@@ -4,13 +4,18 @@ require('dotenv').config();
 
 const app = express();
 
-app.use(cors({ origin: 'http://localhost:3000' }));
+app.use(cors({
+  origin: [
+    'http://localhost:3000',
+    'https://contentlens-abdulkayyum20006-3476s-projects.vercel.app',
+    'https://contentlens-production-a2e5.up.railway.app'
+  ]
+}));
+
 app.use(express.json());
 
-// Routes
 app.use('/api/search', require('./routes/search'));
 
-// Test route
 app.get('/', (req, res) => {
   res.json({ message: 'ContentLens Backend chal raha hai! 🚀' });
 });
