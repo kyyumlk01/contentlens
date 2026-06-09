@@ -9,7 +9,7 @@ app.use(cors({
     'http://localhost:3000',
     'https://contentlens-abdulkayyum20006-3476s-projects.vercel.app',
     'https://contentlens-kqra91y31-abdulkayyum20006-3476s-projects.vercel.app',
-    'https://contentlens-production-a2e5.up.railway.app'
+    'https://contentlens-production-a2e5.up.railway.app/'
   ]
 }));
 
