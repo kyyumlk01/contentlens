@@ -4,14 +4,7 @@ require('dotenv').config();
 
 const app = express();
 
-app.use(cors()({
-  origin: [
-    'http://localhost:3000',
-    'https://contentlens-pa7alisoj-abdulkayyum20006-3476s-projects.vercel.app',
-    'https://contentlens-kqra91y31-abdulkayyum20006-3476s-projects.vercel.app',
-    'https://contentlens-abdulkayyum20006-3476s-projects.vercel.app'
-  ]
-}));
+app.use(cors());
 
 app.use(express.json());
 
