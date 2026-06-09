@@ -15,7 +15,7 @@ export default function Dashboard() {
     if (!query) return;
     setLoading(true); setError(''); setResult(null);
     try {
-      const res = await fetch(`https://contentlens-production-a2e5.up.railway.app/api/search`, {
+      const res = await fetch(`https://contentlens-production-a2e5.up.railway.app`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query, category })
