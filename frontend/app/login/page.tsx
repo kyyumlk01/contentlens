@@ -27,11 +27,11 @@ export default function Login() {
     setLoading(false);
   }
 
-  async function handleGoogleLogin() {
+ async function handleGoogleLogin() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/dashboard`
+        redirectTo: `https://contentlens-abdulkayyum20006-3476s-projects.vercel.app/dashboard`
       }
     });
     if (error) setError(error.message);
