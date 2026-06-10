@@ -1,6 +1,8 @@
 'use client';
 import Image from 'next/image';
 import { useState } from 'react';
+import { supabase } from '@/lib/supabase';
+import { useRouter } from 'next/navigation';
 
 const CATEGORIES = ['Fitness', 'Finance', 'Gaming', 'Comedy', 'Tech', 'Food', 'Travel', 'Education'];
 
@@ -10,6 +12,12 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any>(null);
   const [error, setError] = useState('');
+  const router = useRouter();
+
+  async function handleLogout() {
+    await supabase.auth.signOut();
+    router.push('/login');
+  }
 
   async function handleSearch() {
     if (!query) return;
@@ -39,7 +47,12 @@ export default function Dashboard() {
           <Image src="/logo.png" alt="ContentLens" width={28} height={28} />
           <span style={{ fontWeight: 500, fontSize: '15px', color: '#0A2540' }}>ContentLens</span>
         </div>
-        <span style={{ fontSize: '13px', color: '#94a3b8' }}>Dashboard</span>
+        <button
+          onClick={handleLogout}
+          style={{ fontSize: '13px', color: '#94a3b8', background: 'none', border: 'none', cursor: 'pointer' }}
+        >
+          Logout
+        </button>
       </nav>
 
       <div style={{ maxWidth: '680px', margin: '0 auto', padding: '48px 24px' }}>
