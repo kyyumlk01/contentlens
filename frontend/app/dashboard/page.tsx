@@ -165,7 +165,7 @@ export default function Dashboard() {
           <span style={{ fontSize: 13, color: sub }}>
             {user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User'}
           </span>
-          <button onClick={handleLogout} style={{ fontSize: 13, color: sub, background: 'none', border: 'none', cursor: 'pointer', padding: '6px 12px', borderRadius: 6, border: `0.5px solid ${border}` }}>
+          <button onClick={handleLogout} style={{ fontSize: 13, color: sub, background: 'none', cursor: 'pointer', padding: '6px 12px', borderRadius: 6, border: `0.5px solid ${border}` }}>
             Logout
           </button>
         </div>
