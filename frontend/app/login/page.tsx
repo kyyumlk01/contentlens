@@ -1,138 +1,219 @@
 'use client';
-import Image from 'next/image';
-import { useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { supabase } from '@/lib/supabase';
 
-export default function Login() {
+export default function LoginPage() {
+  const [dark, setDark] = useState(false);
+  const [isSignup, setIsSignup] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [isSignup, setIsSignup] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const router = useRouter();
 
-  async function handleAuth() {
+  useEffect(() => {
+    const saved = localStorage.getItem('theme');
+    if (saved === 'dark') setDark(true);
+    // Agar already logged in hai to dashboard pe bhejo
+    supabase.auth.getSession().then(({ data }) => {
+      if (data.session) router.push('/dashboard');
+    });
+  }, []);
+
+  const toggleTheme = () => {
+    const newDark = !dark;
+    setDark(newDark);
+    localStorage.setItem('theme', newDark ? 'dark' : 'light');
+  };
+
+  const handleAuth = async () => {
+    if (!email || !password) {
+      setError('Email aur password dono daalo.');
+      return;
+    }
+    if (password.length < 6) {
+      setError('Password kam se kam 6 characters ka hona chahiye.');
+      return;
+    }
     setLoading(true);
     setError('');
+    setSuccess('');
+
     if (isSignup) {
       const { error } = await supabase.auth.signUp({ email, password });
-      if (error) { setError(error.message); setLoading(false); return; }
-      router.push('/dashboard');
+      if (error) {
+        setError('Kuch galat hua. Dobara try karo.');
+      } else {
+        setSuccess('Account ban gaya! Ab login karo.');
+        setIsSignup(false);
+        setPassword('');
+      }
     } else {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) { setError(error.message); setLoading(false); return; }
-      router.push('/dashboard');
+      if (error) {
+        if (error.message.includes('Invalid login credentials')) {
+          setError('Email ya password galat hai. Dobara check karo.');
+        } else if (error.message.includes('Email not confirmed')) {
+          setError('Pehle apna email confirm karo.');
+        } else {
+          setError('Login nahi ho paya. Dobara try karo.');
+        }
+      } else {
+        setSuccess('Login ho gaya! Dashboard pe ja rahe hain...');
+        setTimeout(() => router.push('/dashboard'), 1000);
+      }
     }
     setLoading(false);
-  }
+  };
 
- async function handleGoogleLogin() {
+  const handleGoogleLogin = async () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `https://contentlens-abdulkayyum20006-3476s-projects.vercel.app/dashboard`
+        redirectTo: 'https://contentlens-abdulkayyum20006-3476s-projects.vercel.app/dashboard'
       }
     });
-    if (error) setError(error.message);
-  }
+    if (error) setError('Google login mein problem aayi.');
+  };
+
+  const bg = dark ? '#111' : '#F8FAFF';
+  const text = dark ? '#f0f0f0' : '#0A2540';
+  const sub = dark ? '#aaa' : '#64748b';
+  const border = dark ? '#2a2a2a' : '#e0e4ea';
+  const cardBg = dark ? '#1a1a1a' : '#fff';
+  const inputBg = dark ? '#111' : '#fafbfc';
+  const inputBorder = dark ? '#333' : '#e0e4ea';
+  const btnOutlineBg = dark ? '#1e1e1e' : '#f8f9fa';
+  const btnOutlineColor = dark ? '#f0f0f0' : '#0A2540';
+  const btnOutlineBorder = dark ? '#444' : '#ccc';
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#F8FAFF', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
+    <div style={{ minHeight: '100vh', background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24, fontFamily: 'system-ui, sans-serif', transition: 'background 0.2s' }}>
 
-      <div style={{ width: '100%', maxWidth: '400px', backgroundColor: '#fff', borderRadius: '16px', padding: '36px', border: '1px solid #e8ecf0', boxShadow: '0 4px 24px #0A254010' }}>
+      {/* Theme toggle */}
+      <button onClick={toggleTheme} style={{ position: 'fixed', top: 16, right: 16, width: 36, height: 36, borderRadius: 8, border: `0.5px solid ${btnOutlineBorder}`, background: btnOutlineBg, cursor: 'pointer', fontSize: 18, display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 }}>
+        {dark ? '☀️' : '🌙'}
+      </button>
 
-        {/* Logo */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '28px' }}>
-          <Image src="/logo.png" alt="ContentLens" width={28} height={28} />
-          <span style={{ fontWeight: 500, fontSize: '15px', color: '#0A2540' }}>ContentLens</span>
-        </div>
+      <div style={{ width: '100%', maxWidth: 400 }}>
 
-        {/* Heading */}
-        <h1 style={{ fontSize: '24px', fontWeight: 500, color: '#0A2540', marginBottom: '6px', letterSpacing: '-0.5px' }}>
-          {isSignup ? 'Create your account' : 'Welcome back'}
-        </h1>
-        <p style={{ fontSize: '14px', color: '#94a3b8', marginBottom: '28px' }}>
-          {isSignup ? 'Start researching for free' : 'Login to your ContentLens account'}
-        </p>
+        {/* Card */}
+        <div style={{ background: cardBg, borderRadius: 16, padding: 36, border: `0.5px solid ${border}`, boxShadow: dark ? 'none' : '0 4px 24px rgba(10,37,64,0.06)' }}>
 
-        {/* Google Button */}
-        <button
-          onClick={handleGoogleLogin}
-          style={{ width: '100%', background: '#fff', color: '#0A2540', border: '1px solid #e8ecf0', padding: '12px', borderRadius: '8px', fontSize: '14px', fontWeight: 500, cursor: 'pointer', marginBottom: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}
-        >
-          <svg width="18" height="18" viewBox="0 0 48 48">
-            <path fill="#FFC107" d="M43.6 20H24v8h11.3C33.6 33.1 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.8 1.1 7.9 3l5.7-5.7C34.1 6.5 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20c11 0 20-9 20-20 0-1.3-.1-2.7-.4-4z"/>
-            <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.5 15.1 18.9 12 24 12c3 0 5.8 1.1 7.9 3l5.7-5.7C34.1 6.5 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/>
-            <path fill="#4CAF50" d="M24 44c5.2 0 9.9-1.9 13.5-5l-6.2-5.2C29.4 35.6 26.8 36 24 36c-5.2 0-9.6-2.9-11.3-7.1l-6.5 5C9.5 39.6 16.3 44 24 44z"/>
-            <path fill="#1976D2" d="M43.6 20H24v8h11.3c-.9 2.5-2.6 4.6-4.8 6l6.2 5.2C40.5 35.5 44 30.1 44 24c0-1.3-.1-2.7-.4-4z"/>
-          </svg>
-          Continue with Google
-        </button>
-
-        {/* Divider */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-          <div style={{ flex: 1, height: '1px', background: '#e8ecf0' }}></div>
-          <span style={{ fontSize: '12px', color: '#94a3b8' }}>or</span>
-          <div style={{ flex: 1, height: '1px', background: '#e8ecf0' }}></div>
-        </div>
-
-        {/* Email */}
-        <div style={{ marginBottom: '12px' }}>
-          <label style={{ fontSize: '12px', fontWeight: 500, color: '#0A2540', display: 'block', marginBottom: '6px' }}>Email</label>
-          <input
-            type="email"
-            placeholder="you@example.com"
-            value={email}
-            onChange={e => setEmail(e.target.value)}
-            style={{ width: '100%', border: '1px solid #e8ecf0', borderRadius: '8px', padding: '11px 14px', fontSize: '14px', color: '#0A2540', outline: 'none', background: '#fafbfc', boxSizing: 'border-box' }}
-          />
-        </div>
-
-        {/* Password */}
-        <div style={{ marginBottom: '20px' }}>
-          <label style={{ fontSize: '12px', fontWeight: 500, color: '#0A2540', display: 'block', marginBottom: '6px' }}>Password</label>
-          <input
-            type="password"
-            placeholder="Min 6 characters"
-            value={password}
-            onChange={e => setPassword(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && handleAuth()}
-            style={{ width: '100%', border: '1px solid #e8ecf0', borderRadius: '8px', padding: '11px 14px', fontSize: '14px', color: '#0A2540', outline: 'none', background: '#fafbfc', boxSizing: 'border-box' }}
-          />
-        </div>
-
-        {/* Error */}
-        {error && (
-          <div style={{ background: '#FFF0F0', color: '#cc0000', fontSize: '13px', padding: '10px 14px', borderRadius: '8px', marginBottom: '16px', border: '1px solid #fcc' }}>
-            {error}
+          {/* Logo */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 28, cursor: 'pointer' }} onClick={() => router.push('/')}>
+            <div style={{ width: 28, height: 28, background: '#1B4FDB', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15 }}>🤖</div>
+            <span style={{ fontWeight: 500, fontSize: 15, color: text }}>Vicobot</span>
           </div>
-        )}
 
-        {/* Button */}
-        <button
-          onClick={handleAuth}
-          disabled={loading}
-          style={{ width: '100%', background: '#1B4FDB', color: '#fff', border: 'none', padding: '13px', borderRadius: '8px', fontSize: '14px', fontWeight: 500, cursor: 'pointer', opacity: loading ? 0.7 : 1, marginBottom: '16px' }}
-        >
-          {loading ? 'Please wait...' : (isSignup ? 'Create account' : 'Login')}
-        </button>
+          {/* Heading */}
+          <h1 style={{ fontSize: 24, fontWeight: 500, color: text, marginBottom: 6, letterSpacing: '-0.5px' }}>
+            {isSignup ? 'Account banao' : 'Welcome back'}
+          </h1>
+          <p style={{ fontSize: 14, color: sub, marginBottom: 28 }}>
+            {isSignup ? 'Free mein shuru karo' : 'Apne Vicobot account mein login karo'}
+          </p>
 
-        {/* Switch */}
-        <p style={{ textAlign: 'center', fontSize: '13px', color: '#94a3b8' }}>
-          {isSignup ? 'Already have an account? ' : "Don't have an account? "}
-          <button
-            onClick={() => { setIsSignup(!isSignup); setError(''); }}
-            style={{ color: '#1B4FDB', background: 'none', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: 500 }}
-          >
-            {isSignup ? 'Login' : 'Sign up for free'}
+          {/* Google Button */}
+          <button onClick={handleGoogleLogin} style={{ width: '100%', background: btnOutlineBg, color: btnOutlineColor, border: `0.5px solid ${btnOutlineBorder}`, padding: 12, borderRadius: 8, fontSize: 14, fontWeight: 500, cursor: 'pointer', marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, transition: 'opacity 0.2s' }}>
+            <svg width="18" height="18" viewBox="0 0 48 48">
+              <path fill="#FFC107" d="M43.6 20H24v8h11.3C33.6 33.1 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.8 1.1 7.9 3l5.7-5.7C34.1 6.5 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20c11 0 20-9 20-20 0-1.3-.1-2.7-.4-4z"/>
+              <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.5 15.1 18.9 12 24 12c3 0 5.8 1.1 7.9 3l5.7-5.7C34.1 6.5 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/>
+              <path fill="#4CAF50" d="M24 44c5.2 0 9.9-1.9 13.5-5l-6.2-5.2C29.4 35.6 26.8 36 24 36c-5.2 0-9.6-2.9-11.3-7.1l-6.5 5C9.5 39.6 16.3 44 24 44z"/>
+              <path fill="#1976D2" d="M43.6 20H24v8h11.3c-.9 2.5-2.6 4.6-4.8 6l6.2 5.2C40.5 35.5 44 30.1 44 24c0-1.3-.1-2.7-.4-4z"/>
+            </svg>
+            Continue with Google
           </button>
-        </p>
 
+          {/* Divider */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+            <div style={{ flex: 1, height: 1, background: border }} />
+            <span style={{ fontSize: 12, color: sub }}>ya</span>
+            <div style={{ flex: 1, height: 1, background: border }} />
+          </div>
+
+          {/* Email */}
+          <div style={{ marginBottom: 12 }}>
+            <label style={{ fontSize: 12, fontWeight: 500, color: text, display: 'block', marginBottom: 6 }}>Email</label>
+            <input
+              type="email"
+              placeholder="you@example.com"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              style={{ width: '100%', border: `1px solid ${inputBorder}`, borderRadius: 8, padding: '11px 14px', fontSize: 14, color: text, outline: 'none', background: inputBg, boxSizing: 'border-box', transition: 'border 0.2s' }}
+              onFocus={e => e.target.style.borderColor = '#1B4FDB'}
+              onBlur={e => e.target.style.borderColor = inputBorder}
+            />
+          </div>
+
+          {/* Password */}
+          <div style={{ marginBottom: 20 }}>
+            <label style={{ fontSize: 12, fontWeight: 500, color: text, display: 'block', marginBottom: 6 }}>Password</label>
+            <input
+              type="password"
+              placeholder="Min 6 characters"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && handleAuth()}
+              style={{ width: '100%', border: `1px solid ${inputBorder}`, borderRadius: 8, padding: '11px 14px', fontSize: 14, color: text, outline: 'none', background: inputBg, boxSizing: 'border-box', transition: 'border 0.2s' }}
+              onFocus={e => e.target.style.borderColor = '#1B4FDB'}
+              onBlur={e => e.target.style.borderColor = inputBorder}
+            />
+          </div>
+
+          {/* Error */}
+          {error && (
+            <div style={{ background: '#FFF0F0', color: '#cc0000', fontSize: 13, padding: '10px 14px', borderRadius: 8, marginBottom: 16, border: '1px solid #fcc', display: 'flex', alignItems: 'center', gap: 8 }}>
+              ❌ {error}
+            </div>
+          )}
+
+          {/* Success */}
+          {success && (
+            <div style={{ background: '#F0FFF4', color: '#166534', fontSize: 13, padding: '10px 14px', borderRadius: 8, marginBottom: 16, border: '1px solid #bbf7d0', display: 'flex', alignItems: 'center', gap: 8 }}>
+              ✅ {success}
+            </div>
+          )}
+
+          {/* Button */}
+          <button
+            onClick={handleAuth}
+            disabled={loading}
+            style={{ width: '100%', background: loading ? '#6b8fe8' : '#1B4FDB', color: '#fff', border: 'none', padding: 13, borderRadius: 8, fontSize: 14, fontWeight: 500, cursor: loading ? 'not-allowed' : 'pointer', marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, transition: 'background 0.2s' }}
+          >
+            {loading ? (
+              <>
+                <span style={{ display: 'inline-block', width: 16, height: 16, border: '2px solid #fff', borderTop: '2px solid transparent', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+                Please wait...
+              </>
+            ) : (
+              isSignup ? '🚀 Account banao' : '→ Login karo'
+            )}
+          </button>
+
+          {/* Switch */}
+          <p style={{ textAlign: 'center', fontSize: 13, color: sub }}>
+            {isSignup ? 'Pehle se account hai? ' : 'Account nahi hai? '}
+            <button onClick={() => { setIsSignup(!isSignup); setError(''); setSuccess(''); }} style={{ color: '#1B4FDB', background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 500 }}>
+              {isSignup ? 'Login karo' : 'Free mein banao'}
+            </button>
+          </p>
+
+        </div>
       </div>
 
-      <p style={{ position: 'fixed', bottom: '20px', fontSize: '12px', color: '#94a3b8' }}>
-        ContentLens · Made for Indian Creators
+      {/* Spinner animation */}
+      <style>{`
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
+      `}</style>
+
+      {/* Bottom note */}
+      <p style={{ position: 'fixed', bottom: 20, fontSize: 12, color: sub }}>
+        Vicobot · Made for Indian Creators
       </p>
 
     </div>
