@@ -16,7 +16,6 @@ export default function LoginPage() {
   useEffect(() => {
     const saved = localStorage.getItem('theme');
     if (saved === 'dark') setDark(true);
-    // Agar already logged in hai to dashboard pe bhejo
     supabase.auth.getSession().then(({ data }) => {
       if (data.session) router.push('/dashboard');
     });
@@ -30,11 +29,11 @@ export default function LoginPage() {
 
   const handleAuth = async () => {
     if (!email || !password) {
-      setError('Email aur password dono daalo.');
+      setError('Please enter your email and password.');
       return;
     }
     if (password.length < 6) {
-      setError('Password kam se kam 6 characters ka hona chahiye.');
+      setError('Password must be at least 6 characters.');
       return;
     }
     setLoading(true);
@@ -44,9 +43,9 @@ export default function LoginPage() {
     if (isSignup) {
       const { error } = await supabase.auth.signUp({ email, password });
       if (error) {
-        setError('Kuch galat hua. Dobara try karo.');
+        setError('Something went wrong. Please try again.');
       } else {
-        setSuccess('Account ban gaya! Ab login karo.');
+        setSuccess('Account created! Please log in.');
         setIsSignup(false);
         setPassword('');
       }
@@ -54,14 +53,14 @@ export default function LoginPage() {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) {
         if (error.message.includes('Invalid login credentials')) {
-          setError('Email ya password galat hai. Dobara check karo.');
+          setError('Incorrect email or password. Please try again.');
         } else if (error.message.includes('Email not confirmed')) {
-          setError('Pehle apna email confirm karo.');
+          setError('Please confirm your email first.');
         } else {
-          setError('Login nahi ho paya. Dobara try karo.');
+          setError('Login failed. Please try again.');
         }
       } else {
-        setSuccess('Login ho gaya! Dashboard pe ja rahe hain...');
+        setSuccess('Login successful! Redirecting...');
         setTimeout(() => router.push('/dashboard'), 1000);
       }
     }
@@ -75,7 +74,7 @@ export default function LoginPage() {
         redirectTo: 'https://contentlens-abdulkayyum20006-3476s-projects.vercel.app/dashboard'
       }
     });
-    if (error) setError('Google login mein problem aayi.');
+    if (error) setError('Google login failed. Please try again.');
   };
 
   const bg = dark ? '#111' : '#F8FAFF';
@@ -92,14 +91,18 @@ export default function LoginPage() {
   return (
     <div style={{ minHeight: '100vh', background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24, fontFamily: 'system-ui, sans-serif', transition: 'background 0.2s' }}>
 
+      <style>{`
+        * { box-sizing: border-box; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+      `}</style>
+
       {/* Theme toggle */}
       <button onClick={toggleTheme} style={{ position: 'fixed', top: 16, right: 16, width: 36, height: 36, borderRadius: 8, border: `0.5px solid ${btnOutlineBorder}`, background: btnOutlineBg, cursor: 'pointer', fontSize: 18, display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 }}>
         {dark ? '☀️' : '🌙'}
       </button>
 
-      <div style={{ width: '100%', maxWidth: 400 }}>
-
-        {/* Card */}
+      <div style={{ width: '100%', maxWidth: 400, animation: 'fadeIn 0.4s ease' }}>
         <div style={{ background: cardBg, borderRadius: 16, padding: 36, border: `0.5px solid ${border}`, boxShadow: dark ? 'none' : '0 4px 24px rgba(10,37,64,0.06)' }}>
 
           {/* Logo */}
@@ -110,14 +113,14 @@ export default function LoginPage() {
 
           {/* Heading */}
           <h1 style={{ fontSize: 24, fontWeight: 500, color: text, marginBottom: 6, letterSpacing: '-0.5px' }}>
-            {isSignup ? 'Account banao' : 'Welcome back'}
+            {isSignup ? 'Create your account' : 'Welcome back'}
           </h1>
           <p style={{ fontSize: 14, color: sub, marginBottom: 28 }}>
-            {isSignup ? 'Free mein shuru karo' : 'Apne Vicobot account mein login karo'}
+            {isSignup ? 'Start for free — no credit card needed' : 'Log in to your Vicobot account'}
           </p>
 
           {/* Google Button */}
-          <button onClick={handleGoogleLogin} style={{ width: '100%', background: btnOutlineBg, color: btnOutlineColor, border: `0.5px solid ${btnOutlineBorder}`, padding: 12, borderRadius: 8, fontSize: 14, fontWeight: 500, cursor: 'pointer', marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, transition: 'opacity 0.2s' }}>
+          <button onClick={handleGoogleLogin} style={{ width: '100%', background: btnOutlineBg, color: btnOutlineColor, border: `0.5px solid ${btnOutlineBorder}`, padding: 12, borderRadius: 8, fontSize: 14, fontWeight: 500, cursor: 'pointer', marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
             <svg width="18" height="18" viewBox="0 0 48 48">
               <path fill="#FFC107" d="M43.6 20H24v8h11.3C33.6 33.1 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.8 1.1 7.9 3l5.7-5.7C34.1 6.5 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20c11 0 20-9 20-20 0-1.3-.1-2.7-.4-4z"/>
               <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.5 15.1 18.9 12 24 12c3 0 5.8 1.1 7.9 3l5.7-5.7C34.1 6.5 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/>
@@ -130,7 +133,7 @@ export default function LoginPage() {
           {/* Divider */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
             <div style={{ flex: 1, height: 1, background: border }} />
-            <span style={{ fontSize: 12, color: sub }}>ya</span>
+            <span style={{ fontSize: 12, color: sub }}>or</span>
             <div style={{ flex: 1, height: 1, background: border }} />
           </div>
 
@@ -142,7 +145,7 @@ export default function LoginPage() {
               placeholder="you@example.com"
               value={email}
               onChange={e => setEmail(e.target.value)}
-              style={{ width: '100%', border: `1px solid ${inputBorder}`, borderRadius: 8, padding: '11px 14px', fontSize: 14, color: text, outline: 'none', background: inputBg, boxSizing: 'border-box', transition: 'border 0.2s' }}
+              style={{ width: '100%', border: `1px solid ${inputBorder}`, borderRadius: 8, padding: '11px 14px', fontSize: 14, color: text, outline: 'none', background: inputBg }}
               onFocus={e => e.target.style.borderColor = '#1B4FDB'}
               onBlur={e => e.target.style.borderColor = inputBorder}
             />
@@ -157,7 +160,7 @@ export default function LoginPage() {
               value={password}
               onChange={e => setPassword(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && handleAuth()}
-              style={{ width: '100%', border: `1px solid ${inputBorder}`, borderRadius: 8, padding: '11px 14px', fontSize: 14, color: text, outline: 'none', background: inputBg, boxSizing: 'border-box', transition: 'border 0.2s' }}
+              style={{ width: '100%', border: `1px solid ${inputBorder}`, borderRadius: 8, padding: '11px 14px', fontSize: 14, color: text, outline: 'none', background: inputBg }}
               onFocus={e => e.target.style.borderColor = '#1B4FDB'}
               onBlur={e => e.target.style.borderColor = inputBorder}
             />
@@ -165,57 +168,45 @@ export default function LoginPage() {
 
           {/* Error */}
           {error && (
-            <div style={{ background: '#FFF0F0', color: '#cc0000', fontSize: 13, padding: '10px 14px', borderRadius: 8, marginBottom: 16, border: '1px solid #fcc', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ background: '#FFF0F0', color: '#cc0000', fontSize: 13, padding: '10px 14px', borderRadius: 8, marginBottom: 16, border: '1px solid #fcc', animation: 'fadeIn 0.3s ease' }}>
               ❌ {error}
             </div>
           )}
 
           {/* Success */}
           {success && (
-            <div style={{ background: '#F0FFF4', color: '#166534', fontSize: 13, padding: '10px 14px', borderRadius: 8, marginBottom: 16, border: '1px solid #bbf7d0', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ background: '#F0FFF4', color: '#166534', fontSize: 13, padding: '10px 14px', borderRadius: 8, marginBottom: 16, border: '1px solid #bbf7d0', animation: 'fadeIn 0.3s ease' }}>
               ✅ {success}
             </div>
           )}
 
           {/* Button */}
-          <button
-            onClick={handleAuth}
-            disabled={loading}
-            style={{ width: '100%', background: loading ? '#6b8fe8' : '#1B4FDB', color: '#fff', border: 'none', padding: 13, borderRadius: 8, fontSize: 14, fontWeight: 500, cursor: loading ? 'not-allowed' : 'pointer', marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, transition: 'background 0.2s' }}
-          >
+          <button onClick={handleAuth} disabled={loading} style={{ width: '100%', background: loading ? '#6b8fe8' : '#1B4FDB', color: '#fff', border: 'none', padding: 13, borderRadius: 8, fontSize: 14, fontWeight: 500, cursor: loading ? 'not-allowed' : 'pointer', marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, transition: 'background 0.2s' }}>
             {loading ? (
               <>
-                <span style={{ display: 'inline-block', width: 16, height: 16, border: '2px solid #fff', borderTop: '2px solid transparent', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+                <span style={{ width: 16, height: 16, border: '2px solid #fff', borderTop: '2px solid transparent', borderRadius: '50%', display: 'inline-block', animation: 'spin 0.8s linear infinite' }} />
                 Please wait...
               </>
             ) : (
-              isSignup ? '🚀 Account banao' : '→ Login karo'
+              isSignup ? '🚀 Create account' : '→ Log in'
             )}
           </button>
 
           {/* Switch */}
           <p style={{ textAlign: 'center', fontSize: 13, color: sub }}>
-            {isSignup ? 'Pehle se account hai? ' : 'Account nahi hai? '}
+            {isSignup ? 'Already have an account? ' : "Don't have an account? "}
             <button onClick={() => { setIsSignup(!isSignup); setError(''); setSuccess(''); }} style={{ color: '#1B4FDB', background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 500 }}>
-              {isSignup ? 'Login karo' : 'Free mein banao'}
+              {isSignup ? 'Log in' : 'Sign up for free'}
             </button>
           </p>
 
         </div>
+
+        {/* Bottom note */}
+        <p style={{ textAlign: 'center', fontSize: 12, color: sub, marginTop: 20 }}>
+          Vicobot · Made for YouTube Creators
+        </p>
       </div>
-
-      {/* Spinner animation */}
-      <style>{`
-        @keyframes spin {
-          to { transform: rotate(360deg); }
-        }
-      `}</style>
-
-      {/* Bottom note */}
-      <p style={{ position: 'fixed', bottom: 20, fontSize: 12, color: sub }}>
-        Vicobot · Made for Indian Creators
-      </p>
-
     </div>
   );
 }
