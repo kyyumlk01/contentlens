@@ -12,6 +12,11 @@ const CATEGORIES = [
   'Business', 'Astrology', 'Other'
 ];
 
+const LANGUAGES = [
+  { value: 'english', label: '🇬🇧 English' },
+  { value: 'hindi', label: '🇮🇳 Hindi (Hinglish)' },
+];
+
 function getTodayKey(userId: string) {
   const today = new Date().toISOString().split('T')[0];
   return `vicobot_searches_${userId}_${today}`;
@@ -31,33 +36,47 @@ function incrementSearchCount(userId: string) {
 export default function Dashboard() {
   const [dark, setDark] = useState(false);
   const [user, setUser] = useState<any>(null);
-  const [language, setLanguage] = useState<'hindi' | 'english'>('hindi');
+  const [language, setLanguage] = useState('english');
   const [category, setCategory] = useState('');
   const [customCategory, setCustomCategory] = useState('');
   const [topic, setTopic] = useState('');
   const [loading, setLoading] = useState(false);
-  const [loadingMsg, setLoadingMsg] = useState('');
+  const [loadingStep, setLoadingStep] = useState(0);
   const [result, setResult] = useState<any>(null);
   const [error, setError] = useState('');
   const [searchCount, setSearchCount] = useState(0);
+  const [copied, setCopied] = useState<number | null>(null);
   const router = useRouter();
 
-  const loadingMessages = language === 'hindi'
-    ? ['🔍 YouTube pe search kar raha hoon...', '📊 Data analyze ho raha hai...', '🤖 AI soch raha hai...', '✨ Results taiyar ho rahe hain...']
-    : ['🔍 Searching YouTube...', '📊 Analyzing data...', '🤖 AI is thinking...', '✨ Preparing results...'];
+  const loadingSteps = [
+    { icon: '🔍', text: 'Searching YouTube data...' },
+    { icon: '📊', text: 'Analyzing competition...' },
+    { icon: '🤖', text: 'AI is thinking...' },
+    { icon: '✨', text: 'Preparing your results...' },
+  ];
 
   useEffect(() => {
     const saved = localStorage.getItem('theme');
     if (saved === 'dark') setDark(true);
     supabase.auth.getSession().then(({ data }) => {
-      if (!data.session) {
-        router.push('/login');
-      } else {
+      if (!data.session) router.push('/login');
+      else {
         setUser(data.session.user);
         setSearchCount(getSearchCount(data.session.user.id));
       }
     });
   }, []);
+
+  useEffect(() => {
+    let interval: any;
+    if (loading) {
+      setLoadingStep(0);
+      interval = setInterval(() => {
+        setLoadingStep(prev => (prev + 1) % loadingSteps.length);
+      }, 1500);
+    }
+    return () => clearInterval(interval);
+  }, [loading]);
 
   const toggleTheme = () => {
     const newDark = !dark;
@@ -70,19 +89,21 @@ export default function Dashboard() {
     router.push('/login');
   };
 
+  const copyTitle = (title: string, i: number) => {
+    navigator.clipboard.writeText(title);
+    setCopied(i);
+    setTimeout(() => setCopied(null), 2000);
+  };
+
   const validateInput = () => {
     const finalCategory = category === 'Other' ? customCategory : category;
-    if (!language) { setError(language === 'hindi' ? 'Language chuniye.' : 'Please select language.'); return false; }
-    if (!finalCategory) { setError(language === 'hindi' ? 'Category chuniye.' : 'Please select a category.'); return false; }
-    if (!topic.trim()) { setError(language === 'hindi' ? 'Topic daalo.' : 'Please enter a topic.'); return false; }
-    if (topic.trim().length < 3) { setError(language === 'hindi' ? 'Topic thoda aur detail mein likho.' : 'Please write a more descriptive topic.'); return false; }
-
-    // Meaningless input detect
+    if (!language) { setError('Please select a language.'); return false; }
+    if (!finalCategory) { setError('Please select a category.'); return false; }
+    if (!topic.trim()) { setError('Please enter a topic.'); return false; }
+    if (topic.trim().length < 3) { setError('Please write a more descriptive topic.'); return false; }
     const meaningless = /^[^a-zA-Z\u0900-\u097F]{0,2}$|^(.)\1{4,}$|^[0-9]+$/.test(topic.trim());
-    if (meaningless || topic.trim().length > 100) {
-      setError(language === 'hindi'
-        ? '🤔 Yeh topic samajh nahi aaya. Kuch aisa likho jaise: "home workout for beginners" ya "ghar pe pizza banana"'
-        : '🤔 This topic doesn\'t make sense. Try something like: "home workout for beginners" or "budget travel tips"');
+    if (meaningless || topic.trim().length > 150) {
+      setError("This topic doesn't make sense. Try something like: 'home workout for beginners' or 'budget travel tips'");
       return false;
     }
     return true;
@@ -92,22 +113,11 @@ export default function Dashboard() {
     setError('');
     setResult(null);
     if (!validateInput()) return;
-
     if (searchCount >= DAILY_LIMIT) {
-      setError(language === 'hindi'
-        ? `⚠️ Aaj ki limit (${DAILY_LIMIT} searches) khatam ho gayi! Kal phir aao ya Pro upgrade karo 🚀`
-        : `⚠️ Daily limit of ${DAILY_LIMIT} searches reached! Come back tomorrow or upgrade to Pro 🚀`);
+      setError(`Daily limit of ${DAILY_LIMIT} searches reached! Come back tomorrow or upgrade to Pro 🚀`);
       return;
     }
-
     setLoading(true);
-    let msgIndex = 0;
-    setLoadingMsg(loadingMessages[0]);
-    const interval = setInterval(() => {
-      msgIndex = (msgIndex + 1) % loadingMessages.length;
-      setLoadingMsg(loadingMessages[msgIndex]);
-    }, 1500);
-
     try {
       const finalCategory = category === 'Other' ? customCategory : category;
       const res = await fetch('https://contentlens-production-a2e5.up.railway.app/api/search', {
@@ -117,18 +127,16 @@ export default function Dashboard() {
       });
       const data = await res.json();
       if (data.error) {
-        setError(language === 'hindi' ? 'Kuch galat hua. Dobara try karo.' : 'Something went wrong. Please try again.');
+        setError('Something went wrong. Please try again.');
       } else {
         setResult(data.data);
         incrementSearchCount(user.id);
         setSearchCount(prev => prev + 1);
       }
     } catch {
-      setError(language === 'hindi' ? 'Backend se connect nahi ho pa raha.' : 'Could not connect to server.');
+      setError('Could not connect to server. Please try again.');
     } finally {
-      clearInterval(interval);
       setLoading(false);
-      setLoadingMsg('');
     }
   };
 
@@ -137,162 +145,170 @@ export default function Dashboard() {
   const sub = dark ? '#aaa' : '#64748b';
   const border = dark ? '#2a2a2a' : '#e0e4ea';
   const cardBg = dark ? '#1a1a1a' : '#F8FAFF';
-  const inputBg = dark ? '#111' : '#fafbfc';
+  const inputBg = dark ? '#1a1a1a' : '#fff';
   const inputBorder = dark ? '#333' : '#e0e4ea';
   const btnOutlineBg = dark ? '#1e1e1e' : '#f8f9fa';
   const btnOutlineColor = dark ? '#f0f0f0' : '#0A2540';
   const btnOutlineBorder = dark ? '#444' : '#ccc';
-
   const remaining = DAILY_LIMIT - searchCount;
+
+  const selectStyle: React.CSSProperties = {
+    width: '100%',
+    border: `1px solid ${inputBorder}`,
+    borderRadius: 8,
+    padding: '11px 14px',
+    fontSize: 14,
+    color: text,
+    background: inputBg,
+    outline: 'none',
+    cursor: 'pointer',
+    appearance: 'none',
+    WebkitAppearance: 'none',
+  };
 
   return (
     <div style={{ minHeight: '100vh', background: bg, color: text, fontFamily: 'system-ui, sans-serif', transition: 'background 0.2s' }}>
+      <style>{`
+        * { box-sizing: border-box; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes bounce { 0%,80%,100% { transform: translateY(0); } 40% { transform: translateY(-10px); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+        .result-card { animation: fadeIn 0.4s ease; }
+        .score-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; }
+        @media (max-width: 600px) {
+          .score-grid { grid-template-columns: 1fr !important; }
+          .nav-user { display: none !important; }
+        }
+      `}</style>
 
       {/* Navbar */}
-      <nav style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 32px', borderBottom: `0.5px solid ${border}`, background: bg, position: 'sticky', top: 0, zIndex: 100 }}>
+      <nav style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 20px', borderBottom: `0.5px solid ${border}`, background: bg, position: 'sticky', top: 0, zIndex: 100 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }} onClick={() => router.push('/')}>
           <div style={{ width: 28, height: 28, background: '#1B4FDB', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15 }}>🤖</div>
           <span style={{ fontWeight: 500, fontSize: 15 }}>Vicobot</span>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-          {/* Search limit indicator */}
-          <div style={{ fontSize: 13, color: remaining <= 1 ? '#dc2626' : sub, background: remaining <= 1 ? '#fee2e2' : cardBg, padding: '5px 12px', borderRadius: 20, border: `0.5px solid ${remaining <= 1 ? '#fca5a5' : border}` }}>
-            {remaining <= 0 ? '⚠️ Limit khatam' : `🔍 ${remaining}/${DAILY_LIMIT} searches left`}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={{ fontSize: 12, color: remaining <= 1 ? '#dc2626' : sub, background: remaining <= 1 ? '#fee2e2' : cardBg, padding: '4px 10px', borderRadius: 20, border: `0.5px solid ${remaining <= 1 ? '#fca5a5' : border}`, whiteSpace: 'nowrap' }}>
+            {remaining <= 0 ? '⚠️ Limit reached' : `🔍 ${remaining}/${DAILY_LIMIT} left`}
           </div>
-          <button onClick={toggleTheme} style={{ width: 34, height: 34, borderRadius: 8, border: `0.5px solid ${btnOutlineBorder}`, background: btnOutlineBg, cursor: 'pointer', fontSize: 16, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <button onClick={toggleTheme} style={{ width: 32, height: 32, borderRadius: 8, border: `0.5px solid ${btnOutlineBorder}`, background: btnOutlineBg, cursor: 'pointer', fontSize: 15, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             {dark ? '☀️' : '🌙'}
           </button>
-          <span style={{ fontSize: 13, color: sub }}>
+          <span className="nav-user" style={{ fontSize: 13, color: sub }}>
             {user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User'}
           </span>
-          <button onClick={handleLogout} style={{ fontSize: 13, color: sub, background: 'none', cursor: 'pointer', padding: '6px 12px', borderRadius: 6, border: `0.5px solid ${border}` }}>
+          <button onClick={handleLogout} style={{ fontSize: 13, color: sub, background: 'none', border: `0.5px solid ${border}`, cursor: 'pointer', padding: '5px 12px', borderRadius: 6 }}>
             Logout
           </button>
         </div>
       </nav>
 
-      <div style={{ maxWidth: 720, margin: '0 auto', padding: '40px 24px' }}>
+      <div style={{ maxWidth: 680, margin: '0 auto', padding: '32px 16px' }}>
 
-        <h1 style={{ fontSize: 28, fontWeight: 500, color: text, marginBottom: 6, letterSpacing: '-0.5px' }}>
-          {language === 'hindi' ? '🎯 Topic Research karo' : '🎯 Research your Topic'}
+        <h1 style={{ fontSize: 24, fontWeight: 500, color: text, marginBottom: 4, letterSpacing: '-0.5px' }}>
+          🎯 Research your Topic
         </h1>
-        <p style={{ fontSize: 14, color: sub, marginBottom: 32 }}>
-          {language === 'hindi'
-            ? 'AI batayega kitne views milenge, competition kaisa hai, aur kaun se titles click karwate hain.'
-            : 'AI will tell you expected views, competition level, and titles that get clicks.'}
+        <p style={{ fontSize: 14, color: sub, marginBottom: 28 }}>
+          AI will tell you expected views, competition level, and titles that get clicks.
         </p>
 
-        {/* Step 1 - Language */}
-        <div style={{ background: cardBg, border: `0.5px solid ${border}`, borderRadius: 12, padding: 20, marginBottom: 16 }}>
-          <p style={{ fontSize: 12, fontWeight: 500, color: '#1B4FDB', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 12 }}>
-            Step 1 · Language chuniye *
+        {/* Step 1 - Language Dropdown */}
+        <div style={{ background: cardBg, border: `0.5px solid ${border}`, borderRadius: 12, padding: 18, marginBottom: 14 }}>
+          <p style={{ fontSize: 11, fontWeight: 600, color: '#1B4FDB', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 10 }}>
+            Step 1 · Select Language *
           </p>
-          <div style={{ display: 'flex', gap: 10 }}>
-            {(['hindi', 'english'] as const).map(lang => (
-              <button key={lang} onClick={() => setLanguage(lang)} style={{ flex: 1, padding: '12px', borderRadius: 8, border: `1.5px solid ${language === lang ? '#1B4FDB' : inputBorder}`, background: language === lang ? '#1B4FDB' : inputBg, color: language === lang ? '#fff' : text, fontWeight: 500, fontSize: 14, cursor: 'pointer', transition: 'all 0.2s' }}>
-                {lang === 'hindi' ? '🇮🇳 Hindi' : '🇬🇧 English'}
-              </button>
-            ))}
+          <div style={{ position: 'relative' }}>
+            <select value={language} onChange={e => setLanguage(e.target.value)} style={selectStyle}>
+              {LANGUAGES.map(l => <option key={l.value} value={l.value}>{l.label}</option>)}
+            </select>
+            <span style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', color: sub }}>▾</span>
           </div>
         </div>
 
-        {/* Step 2 - Category */}
-        <div style={{ background: cardBg, border: `0.5px solid ${border}`, borderRadius: 12, padding: 20, marginBottom: 16 }}>
-          <p style={{ fontSize: 12, fontWeight: 500, color: '#1B4FDB', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 12 }}>
-            Step 2 · {language === 'hindi' ? 'Category chuniye *' : 'Select Category *'}
+        {/* Step 2 - Category Dropdown */}
+        <div style={{ background: cardBg, border: `0.5px solid ${border}`, borderRadius: 12, padding: 18, marginBottom: 14 }}>
+          <p style={{ fontSize: 11, fontWeight: 600, color: '#1B4FDB', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 10 }}>
+            Step 2 · Select Category *
           </p>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-            {CATEGORIES.map(cat => (
-              <button key={cat} onClick={() => setCategory(cat)} style={{ padding: '7px 16px', borderRadius: 20, border: `1.5px solid ${category === cat ? '#1B4FDB' : inputBorder}`, background: category === cat ? '#1B4FDB' : inputBg, color: category === cat ? '#fff' : text, fontSize: 13, fontWeight: category === cat ? 500 : 400, cursor: 'pointer', transition: 'all 0.2s' }}>
-                {cat}
-              </button>
-            ))}
+          <div style={{ position: 'relative' }}>
+            <select value={category} onChange={e => setCategory(e.target.value)} style={selectStyle}>
+              <option value="">-- Select a category --</option>
+              {CATEGORIES.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+            </select>
+            <span style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', color: sub }}>▾</span>
           </div>
           {category === 'Other' && (
             <input
-              placeholder={language === 'hindi' ? 'Apni category likho...' : 'Write your category...'}
+              placeholder="Write your category..."
               value={customCategory}
               onChange={e => setCustomCategory(e.target.value)}
-              style={{ marginTop: 12, width: '100%', border: `1px solid ${inputBorder}`, borderRadius: 8, padding: '10px 14px', fontSize: 14, color: text, background: inputBg, outline: 'none', boxSizing: 'border-box' }}
-              onFocus={e => e.target.style.borderColor = '#1B4FDB'}
-              onBlur={e => e.target.style.borderColor = inputBorder}
+              style={{ marginTop: 10, width: '100%', border: `1px solid ${inputBorder}`, borderRadius: 8, padding: '10px 14px', fontSize: 14, color: text, background: inputBg, outline: 'none' }}
             />
           )}
         </div>
 
         {/* Step 3 - Topic */}
-        <div style={{ background: cardBg, border: `0.5px solid ${border}`, borderRadius: 12, padding: 20, marginBottom: 20 }}>
-          <p style={{ fontSize: 12, fontWeight: 500, color: '#1B4FDB', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 12 }}>
-            Step 3 · {language === 'hindi' ? 'Apna topic daalo *' : 'Enter your topic *'}
+        <div style={{ background: cardBg, border: `0.5px solid ${border}`, borderRadius: 12, padding: 18, marginBottom: 18 }}>
+          <p style={{ fontSize: 11, fontWeight: 600, color: '#1B4FDB', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 10 }}>
+            Step 3 · Enter your Topic *
           </p>
           <input
-            placeholder={language === 'hindi' ? 'Jaise: ghar pe pizza banana, beginner workout...' : 'e.g. home workout for beginners, budget travel tips...'}
+            placeholder="e.g. home workout for beginners, budget travel tips..."
             value={topic}
             onChange={e => setTopic(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && handleGenerate()}
-            style={{ width: '100%', border: `1px solid ${inputBorder}`, borderRadius: 8, padding: '12px 16px', fontSize: 14, color: text, background: inputBg, outline: 'none', boxSizing: 'border-box' }}
-            onFocus={e => e.target.style.borderColor = '#1B4FDB'}
-            onBlur={e => e.target.style.borderColor = inputBorder}
+            style={{ width: '100%', border: `1px solid ${inputBorder}`, borderRadius: 8, padding: '12px 14px', fontSize: 14, color: text, background: inputBg, outline: 'none' }}
           />
         </div>
 
         {/* Error */}
         {error && (
-          <div style={{ background: dark ? '#2a1a1a' : '#FFF0F0', color: '#cc0000', fontSize: 14, padding: '12px 16px', borderRadius: 10, marginBottom: 16, border: '1px solid #fca5a5' }}>
-            {error}
+          <div style={{ background: dark ? '#2a1a1a' : '#FFF0F0', color: '#dc2626', fontSize: 14, padding: '12px 16px', borderRadius: 10, marginBottom: 14, border: '1px solid #fca5a5', animation: 'fadeIn 0.3s ease' }}>
+            ❌ {error}
           </div>
         )}
 
         {/* Generate Button */}
-        <button onClick={handleGenerate} disabled={loading || remaining <= 0} style={{ width: '100%', background: loading || remaining <= 0 ? '#6b8fe8' : '#1B4FDB', color: '#fff', border: 'none', padding: '14px', borderRadius: 10, fontSize: 15, fontWeight: 500, cursor: loading || remaining <= 0 ? 'not-allowed' : 'pointer', marginBottom: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, transition: 'background 0.2s' }}>
+        <button onClick={handleGenerate} disabled={loading || remaining <= 0} style={{ width: '100%', background: loading || remaining <= 0 ? '#93a5e8' : '#1B4FDB', color: '#fff', border: 'none', padding: '14px', borderRadius: 10, fontSize: 15, fontWeight: 500, cursor: loading || remaining <= 0 ? 'not-allowed' : 'pointer', marginBottom: 28, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, transition: 'background 0.2s' }}>
           {loading ? (
             <>
-              <span style={{ display: 'inline-block', width: 18, height: 18, border: '2px solid #fff', borderTop: '2px solid transparent', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
-              {loadingMsg}
+              <span style={{ width: 18, height: 18, border: '2px solid rgba(255,255,255,0.3)', borderTop: '2px solid #fff', borderRadius: '50%', display: 'inline-block', animation: 'spin 0.8s linear infinite' }} />
+              {loadingSteps[loadingStep].text}
             </>
-          ) : remaining <= 0 ? '⚠️ Aaj ki limit khatam' : '✨ Generate Analysis'}
+          ) : remaining <= 0 ? '⚠️ Daily limit reached' : '✨ Generate Analysis'}
         </button>
 
         {/* Loading Animation */}
         {loading && (
-          <div style={{ textAlign: 'center', padding: '32px 0', marginBottom: 24 }}>
-            <div style={{ display: 'flex', justifyContent: 'center', gap: 6, marginBottom: 16 }}>
+          <div style={{ textAlign: 'center', padding: '24px 0', marginBottom: 24, animation: 'fadeIn 0.3s ease' }}>
+            <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginBottom: 20 }}>
               {[0, 1, 2].map(i => (
                 <div key={i} style={{ width: 10, height: 10, background: '#1B4FDB', borderRadius: '50%', animation: `bounce 1.2s ease-in-out ${i * 0.2}s infinite` }} />
               ))}
             </div>
-            <p style={{ color: sub, fontSize: 14 }}>{loadingMsg}</p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, maxWidth: 300, margin: '0 auto' }}>
+              {loadingSteps.map((step, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 14px', borderRadius: 8, background: i === loadingStep ? (dark ? '#1e2a4a' : '#dbeafe') : 'transparent', transition: 'background 0.3s', animation: i === loadingStep ? 'pulse 1.5s ease infinite' : 'none' }}>
+                  <span style={{ fontSize: 18 }}>{step.icon}</span>
+                  <span style={{ fontSize: 13, color: i === loadingStep ? '#1B4FDB' : sub, fontWeight: i === loadingStep ? 500 : 400 }}>{step.text}</span>
+                  {i < loadingStep && <span style={{ marginLeft: 'auto', color: '#16a34a', fontSize: 14 }}>✓</span>}
+                </div>
+              ))}
+            </div>
           </div>
         )}
 
         {/* Results */}
         {result && !loading && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }} className="result-card">
 
             {/* Score Cards */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
+            <div className="score-grid">
               {[
-                {
-                  label: language === 'hindi' ? 'Demand Score' : 'Demand Score',
-                  value: `${result.demandScore}/100`,
-                  sub: language === 'hindi' ? '100 mein se' : 'Out of 100',
-                  color: result.demandScore >= 70 ? '#16a34a' : result.demandScore >= 40 ? '#f59e0b' : '#dc2626',
-                  bg: result.demandScore >= 70 ? '#dcfce7' : result.demandScore >= 40 ? '#fef3c7' : '#fee2e2',
-                },
-                {
-                  label: language === 'hindi' ? 'Expected Views' : 'Expected Views',
-                  value: `${(result.expectedViewsMin / 1000).toFixed(0)}K–${(result.expectedViewsMax / 1000).toFixed(0)}K`,
-                  sub: language === 'hindi' ? 'Pehle 30 din mein' : 'First 30 days',
-                  color: '#1B4FDB',
-                  bg: dark ? '#0c1a3a' : '#dbeafe',
-                },
-                {
-                  label: language === 'hindi' ? 'Competition' : 'Competition',
-                  value: result.competition,
-                  sub: language === 'hindi' ? 'Difficulty level' : 'Difficulty level',
-                  color: result.competition === 'Easy' ? '#16a34a' : result.competition === 'Medium' ? '#f59e0b' : '#dc2626',
-                  bg: result.competition === 'Easy' ? '#dcfce7' : result.competition === 'Medium' ? '#fef3c7' : '#fee2e2',
-                },
+                { label: 'Demand Score', value: `${result.demandScore}/100`, sub: 'Out of 100', color: result.demandScore >= 70 ? '#16a34a' : result.demandScore >= 40 ? '#f59e0b' : '#dc2626', bg: result.demandScore >= 70 ? '#dcfce7' : result.demandScore >= 40 ? '#fef3c7' : '#fee2e2' },
+                { label: 'Expected Views', value: `${(result.expectedViewsMin/1000).toFixed(0)}K–${(result.expectedViewsMax/1000).toFixed(0)}K`, sub: 'First 30 days', color: '#1B4FDB', bg: '#dbeafe' },
+                { label: 'Competition', value: result.competition, sub: 'Difficulty level', color: result.competition === 'Easy' ? '#16a34a' : result.competition === 'Medium' ? '#f59e0b' : '#dc2626', bg: result.competition === 'Easy' ? '#dcfce7' : result.competition === 'Medium' ? '#fef3c7' : '#fee2e2' },
               ].map((c, i) => (
                 <div key={i} style={{ background: dark ? '#1a1a1a' : c.bg, borderRadius: 12, padding: 16, border: `0.5px solid ${border}`, textAlign: 'center' }}>
                   <p style={{ fontSize: 11, color: sub, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8 }}>{c.label}</p>
@@ -302,64 +318,46 @@ export default function Dashboard() {
               ))}
             </div>
 
-            {/* Demand Explanation */}
+            {/* Analysis */}
             {result.demandExplanation && (
               <div style={{ background: dark ? '#1a1a1a' : '#f0f9ff', border: `0.5px solid ${dark ? '#2a2a2a' : '#bae6fd'}`, borderRadius: 12, padding: 16 }}>
-                <p style={{ fontSize: 11, color: '#0284c7', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8, fontWeight: 500 }}>
-                  📊 {language === 'hindi' ? 'Analysis' : 'Analysis'}
-                </p>
+                <p style={{ fontSize: 11, color: '#0284c7', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8, fontWeight: 600 }}>📊 Analysis</p>
                 <p style={{ fontSize: 14, color: text, lineHeight: 1.6 }}>{result.demandExplanation}</p>
               </div>
             )}
 
             {/* Content Gaps */}
             <div style={{ background: dark ? '#1a1a1a' : '#f0f5ff', borderRadius: 12, padding: 16, border: `0.5px solid ${dark ? '#2a3a5a' : '#c7d4f8'}` }}>
-              <p style={{ fontSize: 11, color: '#1B4FDB', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 12, fontWeight: 500 }}>
-                💡 {language === 'hindi' ? 'Content Gaps' : 'Content Gaps'}
-              </p>
+              <p style={{ fontSize: 11, color: '#1B4FDB', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 12, fontWeight: 600 }}>💡 Content Gaps</p>
               {result.contentGaps?.map((gap: string, i: number) => (
-                <p key={i} style={{ fontSize: 14, color: text, padding: '8px 0', borderBottom: i < result.contentGaps.length - 1 ? `1px solid ${dark ? '#2a2a2a' : '#c7d4f840'}` : 'none', lineHeight: 1.5 }}>
-                  • {gap}
-                </p>
+                <p key={i} style={{ fontSize: 14, color: text, padding: '8px 0', borderBottom: i < result.contentGaps.length - 1 ? `1px solid ${dark ? '#2a2a2a' : '#c7d4f840'}` : 'none', lineHeight: 1.5 }}>• {gap}</p>
               ))}
             </div>
 
             {/* Title Suggestions */}
             <div style={{ background: dark ? '#1a1a1a' : '#fff', borderRadius: 12, padding: 16, border: `0.5px solid ${border}` }}>
-              <p style={{ fontSize: 11, color: sub, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 12, fontWeight: 500 }}>
-                🎯 {language === 'hindi' ? 'Title Ideas' : 'Title Ideas'}
-              </p>
+              <p style={{ fontSize: 11, color: sub, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 12, fontWeight: 600 }}>🎯 Title Ideas</p>
               {result.titleSuggestions?.map((title: string, i: number) => (
-                <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 0', borderBottom: i < result.titleSuggestions.length - 1 ? `1px solid ${border}` : 'none' }}>
-                  <p style={{ fontSize: 14, fontWeight: 500, color: text, lineHeight: 1.4 }}>
-                    {i + 1}. {title}
-                  </p>
-                  <button onClick={() => navigator.clipboard.writeText(title)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 16, padding: '0 0 0 8px', flexShrink: 0 }} title="Copy">
-                    📋
+                <div key={i} style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 10, padding: '10px 0', borderBottom: i < result.titleSuggestions.length - 1 ? `1px solid ${border}` : 'none' }}>
+                  <p style={{ fontSize: 14, fontWeight: 500, color: text, lineHeight: 1.4 }}>{i + 1}. {title}</p>
+                  <button onClick={() => copyTitle(title, i)} style={{ background: copied === i ? '#dcfce7' : (dark ? '#2a2a2a' : '#f1f5f9'), border: 'none', borderRadius: 6, padding: '4px 8px', cursor: 'pointer', fontSize: 12, color: copied === i ? '#16a34a' : sub, whiteSpace: 'nowrap', flexShrink: 0, transition: 'all 0.2s' }}>
+                    {copied === i ? '✓ Copied' : '📋 Copy'}
                   </button>
                 </div>
               ))}
             </div>
 
-            {/* AI Verdict */}
+            {/* Verdict */}
             <div style={{ background: '#1B4FDB', borderRadius: 12, padding: 16 }}>
-              <p style={{ fontSize: 11, color: '#88BDF2', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 6, fontWeight: 500 }}>
-                ✨ {language === 'hindi' ? 'AI Verdict' : 'AI Verdict'}
-              </p>
+              <p style={{ fontSize: 11, color: '#88BDF2', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 6, fontWeight: 600 }}>✨ AI Verdict</p>
               <p style={{ fontSize: 14, fontWeight: 500, color: '#fff', lineHeight: 1.6 }}>{result.verdict}</p>
             </div>
 
-            {/* Pro Upgrade Banner */}
-            <div style={{ background: dark ? '#1a1a1a' : '#f8faff', border: `1px dashed #1B4FDB`, borderRadius: 12, padding: 16, textAlign: 'center' }}>
-              <p style={{ fontSize: 14, fontWeight: 500, color: text, marginBottom: 4 }}>
-                🚀 {language === 'hindi' ? 'Aur features chahiye?' : 'Want more features?'}
-              </p>
-              <p style={{ fontSize: 13, color: sub, marginBottom: 12 }}>
-                {language === 'hindi'
-                  ? 'Pro plan mein milega: Video schedule, Editing tips, Channel analysis, Thumbnail ideas aur bahut kuch!'
-                  : 'Pro plan includes: Video schedule, Editing tips, Channel analysis, Thumbnail ideas and more!'}
-              </p>
-              <button disabled style={{ background: '#1B4FDB', color: '#fff', border: 'none', padding: '10px 24px', borderRadius: 8, fontSize: 14, fontWeight: 500, cursor: 'not-allowed', opacity: 0.8 }}>
+            {/* Pro Banner */}
+            <div style={{ background: dark ? '#1a1a1a' : '#f8faff', border: `1.5px dashed #1B4FDB`, borderRadius: 12, padding: 16, textAlign: 'center' }}>
+              <p style={{ fontSize: 14, fontWeight: 500, color: text, marginBottom: 4 }}>🚀 Want more features?</p>
+              <p style={{ fontSize: 13, color: sub, marginBottom: 12 }}>Pro plan includes: Video schedule, Editing tips, Channel analysis, Thumbnail ideas and more!</p>
+              <button disabled style={{ background: '#1B4FDB', color: '#fff', border: 'none', padding: '10px 24px', borderRadius: 8, fontSize: 13, fontWeight: 500, cursor: 'not-allowed', opacity: 0.8 }}>
                 Coming Soon — ₹299/month
               </button>
             </div>
@@ -367,15 +365,6 @@ export default function Dashboard() {
           </div>
         )}
       </div>
-
-      <style>{`
-        @keyframes spin { to { transform: rotate(360deg); } }
-        @keyframes bounce {
-          0%, 80%, 100% { transform: translateY(0); }
-          40% { transform: translateY(-12px); }
-        }
-      `}</style>
-
     </div>
   );
 }
