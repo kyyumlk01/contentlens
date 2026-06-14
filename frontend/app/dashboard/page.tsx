@@ -184,6 +184,8 @@ export default function Dashboard() {
           .nav-user { display: none !important; }
         }
       `}</style>
+      <Toast toasts={toasts} removeToast={removeToast} />
+<ProgressBar loading={loading} />
 
       {/* Navbar */}
       <nav style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 20px', borderBottom: `0.5px solid ${border}`, background: bg, position: 'sticky', top: 0, zIndex: 100 }}>
