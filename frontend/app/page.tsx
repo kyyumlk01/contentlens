@@ -85,7 +85,7 @@ export default function LandingPage() {
       `}</style>
 
       {/* Navbar */}
-      <nav className="nav-inner" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: `0.5px solid ${border}`, background: bg, position: 'sticky', top: 0, zIndex: 100 }}>
+      <nav className="nav-inner" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: `0.5px solid ${border}`, background: dark ? '#111' : 'rgba(253,244,255,0.8)', backdropFilter: 'blur(12px)', position: 'sticky', top: 0, zIndex: 100 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <div style={{ width: 30, height: 30, background: '#1B4FDB', borderRadius: 7, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16 }}>🤖</div>
           <span style={{ fontWeight: 500, fontSize: 16 }}>Vicobot</span>
