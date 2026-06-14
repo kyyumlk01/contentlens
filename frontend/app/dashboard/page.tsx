@@ -87,10 +87,11 @@ export default function Dashboard() {
     localStorage.setItem('theme', newDark ? 'dark' : 'light');
   };
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    router.push('/login');
-  };
+ const handleLogout = async () => {
+  await supabase.auth.signOut();
+  addToast('Logged out successfully!', 'info');
+  setTimeout(() => router.push('/login'), 800);
+};
 
  const copyTitle = (title: string, i: number) => {
   navigator.clipboard.writeText(title);
