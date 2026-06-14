@@ -19,11 +19,13 @@ export default function LandingPage() {
   };
 
   const handleAuthClick = async () => {
-    const { data } = await supabase.auth.getSession();
-    if (data.session) router.push('/dashboard');
-    else router.push('/login');
-  };
-
+  const { data } = await supabase.auth.getSession();
+  if (data.session) {
+    router.push('/dashboard');
+  } else {
+    router.push('/login');
+  }
+};
   const bg = dark ? '#111' : '#fff';
   const text = dark ? '#f0f0f0' : '#0A2540';
   const sub = dark ? '#aaa' : '#555';
