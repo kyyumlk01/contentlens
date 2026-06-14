@@ -56,7 +56,7 @@ export default function LandingPage() {
   ];
 
   return (
-    <div style={{ background: bg, color: text, minHeight: '100vh', fontFamily: 'system-ui, sans-serif', transition: 'background 0.2s, color 0.2s' }}>
+   <div style={{ background: dark ? '#111' : 'linear-gradient(135deg, #FDF4FF 0%, #EEF2FF 40%, #E0F2FE 100%)', color: text, minHeight: '100vh', fontFamily: 'system-ui, sans-serif', transition: 'background 0.2s, color 0.2s' }}>
       <style>{`
         * { box-sizing: border-box; }
         .feat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
