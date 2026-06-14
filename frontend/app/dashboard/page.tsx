@@ -2,6 +2,8 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
+import { Toast, useToast } from '@/components/Toast';
+import { ProgressBar } from '@/components/ProgressBar';
 
 const DAILY_LIMIT = 5;
 
