@@ -92,11 +92,12 @@ export default function Dashboard() {
     router.push('/login');
   };
 
-  const copyTitle = (title: string, i: number) => {
-    navigator.clipboard.writeText(title);
-    setCopied(i);
-    setTimeout(() => setCopied(null), 2000);
-  };
+ const copyTitle = (title: string, i: number) => {
+  navigator.clipboard.writeText(title);
+  setCopied(i);
+  addToast('Title copied to clipboard!', 'success');
+  setTimeout(() => setCopied(null), 2000);
+};
 
   const validateInput = () => {
     const finalCategory = category === 'Other' ? customCategory : category;
