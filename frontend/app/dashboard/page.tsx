@@ -49,6 +49,7 @@ export default function Dashboard() {
   const [searchCount, setSearchCount] = useState(0);
   const [copied, setCopied] = useState<number | null>(null);
   const router = useRouter();
+  const { toasts, addToast, removeToast } = useToast();
 
   const loadingSteps = [
     { icon: '🔍', text: 'Searching YouTube data...' },
