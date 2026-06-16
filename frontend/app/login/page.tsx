@@ -115,7 +115,7 @@ export default function LoginPage() {
 
           {/* Logo */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 28, cursor: 'pointer' }} onClick={() => router.push('/')}>
-            <div style={{ width: 28, height: 28, background: '#1B4FDB', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15 }}>🤖</div>
+            <img src="/logo.jpg" alt="Vicobot" style={{ width: 28, height: 28, borderRadius: 6, objectFit: 'contain' }} />
             <span style={{ fontWeight: 500, fontSize: 15, color: text }}>Vicobot</span>
           </div>
 
