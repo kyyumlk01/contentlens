@@ -192,7 +192,7 @@ export default function Dashboard() {
       {/* Navbar */}
       <nav style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 20px', borderBottom: `0.5px solid ${border}`, background: bg, position: 'sticky', top: 0, zIndex: 100 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }} onClick={() => router.push('/')}>
-          <div style={{ width: 28, height: 28, background: '#1B4FDB', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15 }}>🤖</div>
+         <img src="/logo.jpg" alt="Vicobot" style={{ width: 28, height: 28, borderRadius: 6, objectFit: 'contain' }} />
           <span style={{ fontWeight: 500, fontSize: 15 }}>Vicobot</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
