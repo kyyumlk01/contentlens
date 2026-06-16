@@ -147,7 +147,7 @@ export default function LandingPage() {
             <span style={{ fontSize: 12, color: '#888', marginLeft: 8 }}>vicobot.in/dashboard</span>
           </div>
           <div style={{ position: 'relative', width: '100%', paddingBottom: '50%' }}>
-            <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&mute=1&loop=1&playlist=dQw4w9WgXcQ&controls=0&modestbranding=1" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }} allow="autoplay; encrypted-media" allowFullScreen />
+            <iframe src="https://www.youtube.com/embed/jc6fG1D3omM?autoplay=1&mute=1&loop=1&playlist=jc6fG1D3omM&controls=0&modestbranding=1" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }} allow="autoplay; encrypted-media" allowFullScreen />
           </div>
         </div>
         <p style={{ textAlign: 'center', fontSize: 13, color: sub, marginTop: 12 }}>▶ Watch how creators research topics in under 30 seconds</p>
