@@ -56,7 +56,7 @@ export default function AboutPage() {
       {/* Navbar */}
       <nav style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 24px', borderBottom: `0.5px solid ${border}`, background: bg, position: 'sticky', top: 0, zIndex: 100 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }} onClick={() => router.push('/')}>
-          <div style={{ width: 30, height: 30, background: '#1B4FDB', borderRadius: 7, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16 }}>🤖</div>
+          <img src="/logo.jpg" alt="Vicobot" style={{ width: 30, height: 30, borderRadius: 7, objectFit: 'contain' }} />
           <span style={{ fontWeight: 500, fontSize: 16 }}>Vicobot</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
