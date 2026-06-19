@@ -9,12 +9,9 @@ export default function LandingPage() {
   const router = useRouter();
 
   useEffect(() => {
-    const saved = localStorage.getItem('theme');
-    if (saved === 'dark') setDark(true);
-    supabase.auth.getSession().then(({ data }) => {
-      if (data.session) router.push('/dashboard');
-    });
-  }, []);
+  const saved = localStorage.getItem('theme');
+  if (saved === 'dark') setDark(true);
+}, []);
 
   const toggleTheme = () => {
     const newDark = !dark;
