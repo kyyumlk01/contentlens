@@ -6,12 +6,16 @@ import { supabase } from '@/lib/supabase';
 export default function LandingPage() {
   const [dark, setDark] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
-  const saved = localStorage.getItem('theme');
-  if (saved === 'dark') setDark(true);
-}, []);
+    const saved = localStorage.getItem('theme');
+    if (saved === 'dark') setDark(true);
+    supabase.auth.getSession().then(({ data }) => {
+      if (data.session) setIsLoggedIn(true);
+    });
+  }, []);
 
   const toggleTheme = () => {
     const newDark = !dark;
@@ -94,7 +98,7 @@ export default function LandingPage() {
             {dark ? '☀️' : '🌙'}
           </button>
           <button onClick={handleAuthClick} style={{ background: btnOutlineBg, color: btnOutlineColor, border: `0.5px solid ${btnOutlineBorder}`, padding: '9px 16px', borderRadius: 8, fontSize: 14, fontWeight: 500, cursor: 'pointer' }}>
-            Log in
+            {isLoggedIn ? 'Go to Dashboard' : 'Log in'}
           </button>
         </div>
 
@@ -110,14 +114,14 @@ export default function LandingPage() {
       </nav>
 
       {/* Mobile Dropdown Menu */}
-<div className={`mobile-menu${menuOpen ? ' open' : ''}`} style={{ background: dark ? '#1a1a1a' : '#fff', borderBottom: `0.5px solid ${border}`, padding: '8px 0', position: 'sticky', top: 57, zIndex: 99 }}>
-  <a href="/about" onClick={() => setMenuOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '13px 20px', fontSize: 14, color: text, textDecoration: 'none', borderBottom: `0.5px solid ${border}` }}>
-    ℹ️ About
-  </a>
-  <a href="#" onClick={() => setMenuOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '13px 20px', fontSize: 14, color: text, textDecoration: 'none' }}>
-    📝 Blog
-  </a>
-</div>
+      <div className={`mobile-menu${menuOpen ? ' open' : ''}`} style={{ background: dark ? '#1a1a1a' : '#fff', borderBottom: `0.5px solid ${border}`, padding: '8px 0', position: 'sticky', top: 57, zIndex: 99 }}>
+        <a href="/about" onClick={() => setMenuOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '13px 20px', fontSize: 14, color: text, textDecoration: 'none', borderBottom: `0.5px solid ${border}` }}>
+          ℹ️ About
+        </a>
+        <a href="#" onClick={() => setMenuOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '13px 20px', fontSize: 14, color: text, textDecoration: 'none' }}>
+          📝 Blog
+        </a>
+      </div>
 
       {/* Hero */}
       <div className="hero-pad" style={{ textAlign: 'center', padding: '72px 32px 56px' }}>
@@ -129,7 +133,7 @@ export default function LandingPage() {
           Vicobot tells you exactly which topics to make, how many views you'll get, and what titles will make people click — before you even hit record.
         </p>
         <button onClick={handleAuthClick} style={{ background: '#1B4FDB', color: '#fff', border: 'none', padding: '14px 32px', borderRadius: 8, fontSize: 16, fontWeight: 500, cursor: 'pointer' }}>
-          🚀 Start now — it's free
+          🚀 {isLoggedIn ? 'Go to Dashboard' : "Start now — it's free"}
         </button>
         <p style={{ fontSize: 13, color: sub, marginTop: 14 }}>No credit card · Free plan available · Hindi & English</p>
       </div>
@@ -144,12 +148,12 @@ export default function LandingPage() {
             <span style={{ fontSize: 12, color: '#888', marginLeft: 8 }}>vicobot.in/dashboard</span>
           </div>
           <div style={{ position: 'relative', width: '100%', paddingBottom: '50%' }}>
-           <iframe
-  src="https://www.youtube.com/embed/jc6fG1D3omM?autoplay=1&mute=1&loop=1&playlist=jc6fG1D3omM&controls=0&modestbranding=1&rel=0"
-  style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }}
-  allow="autoplay; encrypted-media"
-  allowFullScreen
-/>
+            <iframe
+              src="https://www.youtube.com/embed/jc6fG1D3omM?autoplay=1&mute=1&loop=1&playlist=jc6fG1D3omM&controls=0&modestbranding=1&rel=0"
+              style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }}
+              allow="autoplay; encrypted-media"
+              allowFullScreen
+            />
           </div>
         </div>
         <p style={{ textAlign: 'center', fontSize: 13, color: sub, marginTop: 12 }}>▶ Watch how creators research topics in under 30 seconds</p>
@@ -200,7 +204,7 @@ export default function LandingPage() {
                 <div key={i} style={{ display: 'flex', gap: 8, fontSize: 13, color: text }}><span style={{ color: '#16a34a' }}>✓</span>{item}</div>
               ))}
             </div>
-            <button onClick={handleAuthClick} style={{ width: '100%', background: btnOutlineBg, color: btnOutlineColor, border: `0.5px solid ${btnOutlineBorder}`, padding: '11px', borderRadius: 8, fontSize: 13, fontWeight: 500, cursor: 'pointer' }}>Get started free</button>
+            <button onClick={handleAuthClick} style={{ width: '100%', background: btnOutlineBg, color: btnOutlineColor, border: `0.5px solid ${btnOutlineBorder}`, padding: '11px', borderRadius: 8, fontSize: 13, fontWeight: 500, cursor: 'pointer' }}>{isLoggedIn ? 'Go to Dashboard' : 'Get started free'}</button>
           </div>
 
           <div style={{ background: dark ? '#1a1a1a' : 'rgba(255,255,255,0.8)', border: '2px solid #1B4FDB', borderRadius: 12, padding: 24, position: 'relative' }}>
@@ -226,7 +230,7 @@ export default function LandingPage() {
         <h2 style={{ fontSize: 24, fontWeight: 500, marginBottom: 10, letterSpacing: '-0.5px', color: text }}>Ready to grow your channel?</h2>
         <p style={{ fontSize: 15, color: sub, marginBottom: 24 }}>Join 500+ YouTube creators already using Vicobot.</p>
         <button onClick={handleAuthClick} style={{ background: '#1B4FDB', color: '#fff', border: 'none', padding: '13px 28px', borderRadius: 8, fontSize: 15, fontWeight: 500, cursor: 'pointer' }}>
-          🚀 Start for free today
+          🚀 {isLoggedIn ? 'Go to Dashboard' : 'Start for free today'}
         </button>
         <p style={{ fontSize: 13, color: sub, marginTop: 12 }}>No credit card · Cancel anytime</p>
       </div>
