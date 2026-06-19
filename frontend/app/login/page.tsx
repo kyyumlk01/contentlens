@@ -19,9 +19,6 @@ export default function LoginPage() {
   useEffect(() => {
     const saved = localStorage.getItem('theme');
     if (saved === 'dark') setDark(true);
-    supabase.auth.getSession().then(({ data }) => {
-      if (data.session) router.push('/dashboard');
-    });
   }, []);
 
   const toggleTheme = () => {
@@ -59,6 +56,7 @@ export default function LoginPage() {
         setIsSignup(false);
         setPassword('');
       }
+      setLoading(false);
     } else {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) {
@@ -69,12 +67,12 @@ export default function LoginPage() {
         } else {
           setError('Login failed. Please try again.');
         }
+        setLoading(false);
       } else {
         addToast('Login successful!', 'success');
-        setTimeout(() => router.push('/dashboard'), 800);
+        router.push('/dashboard');
       }
     }
-    setLoading(false);
   };
 
   const handleGoogleLogin = async () => {
